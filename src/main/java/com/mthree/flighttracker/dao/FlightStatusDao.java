@@ -8,12 +8,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FlightStatusDao extends JpaRepository<FlightStatus, Integer> {
-
     @Nullable
-    @Query("SELECT f FROM flight_status f WHERE id = ?1")
+    @Query("SELECT f FROM FlightStatus f WHERE id = ?1")
     FlightStatus getFlightStatus(int id);
 
     @Nullable
-    @Query("SELECT f FROM flight_status f WHERE status = ?1")
+    @Query("SELECT f FROM FlightStatus f WHERE f.status = ?1")
     FlightStatus getFlightStatus(String status);
 }
