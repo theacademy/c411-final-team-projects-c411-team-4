@@ -1,9 +1,6 @@
 package com.mthree.flighttracker.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,18 +10,40 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private int id;
-    private FlightStatus status;
-    private Airport depAirport;
-    private Airport arrAirport;
-    private Airline airline;
-    private int number;
-    private LocalDateTime scheduledArrival;
-    private LocalDateTime scheduledDeparture;
-    private LocalDateTime estimatedArrival;
-    private LocalDateTime estimatedDeparture;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
 
+    @ManyToOne
+    private FlightStatus status;
+
+    @ManyToOne
+    private Airport depAirport;
+
+    @ManyToOne
+    private Airport arrAirport;
+
+    @ManyToOne
+    private Airline airline;
+
+    @Column(name = "number")
+    private int number;
+
+    @Column(name = "scheduled_arrival")
+    private LocalDateTime scheduledArrival;
+
+    @Column(name = "scheduled_departure")
+    private LocalDateTime scheduledDeparture;
+
+    @Column(name = "estimated_arrival")
+    private LocalDateTime estimatedArrival;
+
+    @Column(name = "estimated_departure")
+    private LocalDateTime estimatedDeparture;
+
+    @Column(name = "latitude")
+    private BigDecimal latitude;
+
+    @Column(name = "longitude")
+    private BigDecimal longitude;
+    
     public Flight() {}
 
     public Flight setId(int id) {
