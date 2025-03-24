@@ -1,20 +1,52 @@
 package com.mthree.flighttracker.model;
 
+import jakarta.persistence.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
 public class Flight {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id")
     private FlightStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "dep_airport_id")
     private Airport depAirport;
+
+    @ManyToOne
+    @JoinColumn(name = "arr_airport_id")
     private Airport arrAirport;
+
+    @ManyToOne
+    @JoinColumn(name = "airline_id")
     private Airline airline;
+
+    @Column(name = "number")
     private int number;
+
+    @Column(name = "scheduled_arrival")
     private LocalDateTime scheduledArrival;
+
+    @Column(name = "scheduled_departure")
     private LocalDateTime scheduledDeparture;
+
+    @Column(name = "estimated_arrival")
     private LocalDateTime estimatedArrival;
+
+    @Column(name = "estimated_departure")
     private LocalDateTime estimatedDeparture;
+
+    @Column(name = "latitude")
     private BigDecimal latitude;
+
+    @Column(name = "longitude")
     private BigDecimal longitude;
 
     public Flight() {}
