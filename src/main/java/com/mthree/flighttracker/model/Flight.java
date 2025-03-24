@@ -1,7 +1,6 @@
 package com.mthree.flighttracker.model;
 
 import jakarta.persistence.*;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
