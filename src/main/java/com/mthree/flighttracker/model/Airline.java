@@ -1,8 +1,17 @@
 package com.mthree.flighttracker.model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Airline {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private int id;
+
+    @Column(length = 50, nullable = false)
     private String name;
+
+    @Column(length = 2, nullable = false)
     private String code;
 
     public Airline() {}

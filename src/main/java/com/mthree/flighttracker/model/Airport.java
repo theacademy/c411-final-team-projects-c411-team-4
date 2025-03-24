@@ -1,12 +1,25 @@
 package com.mthree.flighttracker.model;
 
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
+@Entity
 public class Airport {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private int id;
+
+    @Column(length = 50, nullable = false)
     private String name;
+
+    @Column(length = 3, nullable = false)
     private String code;
+
+    @Column(precision = 9, scale = 6, nullable = false)
     private BigDecimal latitude;
+
+    @Column(precision = 9, scale = 6, nullable = false)
     private BigDecimal longitude;
 
     public Airport() {}

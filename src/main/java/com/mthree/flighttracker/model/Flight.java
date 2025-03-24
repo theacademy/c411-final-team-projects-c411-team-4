@@ -1,6 +1,7 @@
 package com.mthree.flighttracker.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,15 +13,19 @@ public class Flight {
     private int id;
 
     @ManyToOne
+    @JoinColumn(name = "status_id")
     private FlightStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "dep_airport_id")
     private Airport depAirport;
 
     @ManyToOne
+    @JoinColumn(name = "arr_airport_id")
     private Airport arrAirport;
 
     @ManyToOne
+    @JoinColumn(name = "airline_id")
     private Airline airline;
 
     @Column(name = "number")
@@ -43,7 +48,7 @@ public class Flight {
 
     @Column(name = "longitude")
     private BigDecimal longitude;
-    
+
     public Flight() {}
 
     public Flight setId(int id) {
