@@ -8,6 +8,7 @@ public class FlightStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "status")
     private String status;
 
     public FlightStatus() {}
