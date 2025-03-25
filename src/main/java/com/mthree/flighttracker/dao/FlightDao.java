@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -27,7 +28,7 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
     List<Flight> getFlightsByAirline(Airline airline);
 
     @Query("SELECT f FROM Flight f WHERE f.scheduledArrival = ?1")
-    List<Flight> getFlightsByDate(LocalDate date);
+    List<Flight> getFlightsByDate(LocalDateTime date);
 
     @Query("SELECT f FROM Flight f WHERE f.depAirport = ?1")
     List<Flight> getFlightsByAirport(Airport airport);
