@@ -48,12 +48,26 @@
   
 
 <main>
-    <h1 class="font-medium text-sky-500">✈️ Flight Tracker Search</h1>
+    <div class="">
+        <h1 class="text-2xl font-bold text-sky-600">✈️ Flight Tracker Search</h1>
+    </div>
 
     <div>
-        <input bind:value={airline} placeholder="Airline (e.g. Air Canada)" />
-        <input bind:value={departure} placeholder="From (e.g. YUL)" />
-        <input bind:value={arrival} placeholder="To (e.g. YYZ)" />
+        <input
+         bind:value={airline} 
+         placeholder="Airline (e.g. Air Canada)"
+         class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
+
+        <input 
+        bind:value={departure} 
+        placeholder="From (e.g. YUL)"
+        class="border border-gray-300 rounded px-4 py-2 shadow-sm"  />
+
+        <input
+         bind:value={arrival} 
+         placeholder="To (e.g. YYZ)" 
+        class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
+        
         <button on:click={searchFlights}>Search</button>
     </div>
 
@@ -76,15 +90,7 @@
 </main>
 
 <style>
-    nav {
-        ul {
-            display: flex;
-            list-style: none;
-        }
-        lo {
-            margin-right: 20px;
-        }
-    }
+
     main {
         font-family: sans-serif;
         padding: 2rem;
