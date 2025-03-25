@@ -22,7 +22,6 @@ public class UserController {
     @Autowired
     private UserDao userDao;
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     // Added response class for authentication tokens

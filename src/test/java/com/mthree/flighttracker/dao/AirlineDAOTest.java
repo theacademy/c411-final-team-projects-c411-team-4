@@ -12,16 +12,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = FlighttrackerApplication.class)
+@Sql(scripts = {"/test_clean_tables.sql", "/test_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class AirlineDAOTest {
     @Autowired
     AirlineDao airlineDao;
 
     @Test
-    @Sql(scripts = {"/test_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testGetKnownAirlines() {
-        final List<Airline> allAirlines = airlineDao.getAllAirlines();
-        assertEquals(5, allAirlines.size());
-
+    public void testGetAirlineByCode() {
         final Airline deltaAirline = airlineDao.getAirlineByCode("DL");
         assertNotNull(deltaAirline);
         assertNotEquals(0, deltaAirline.getId());
@@ -29,9 +26,32 @@ public class AirlineDAOTest {
     }
 
     @Test
-    @Sql(scripts = {"/test_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void testGetAllAirlines() {
+        final List<Airline> airlines = airlineDao.getAllAirlines();
+        assertEquals(5, airlines.size());
+    }
+
+    @Test
     public void testAddAirline() {
-        final Airline kyleAir = new Airline().setCode("KY").setName("Kyle's Airline Intl");
-        System.out.println(airlineDao.save(kyleAir));
+        Airline kyleAir = new Airline().setCode("KY").setName("Kyle's Airline Intl");
+        kyleAir = airlineDao.save(kyleAir);
+        assertNotEquals(0, kyleAir.getId());
+        Airline willAir = new Airline().setCode("WC").setName("Will's Airline Intl");
+        willAir = airlineDao.save(willAir);
+        assertNotEquals(0, willAir.getId());
+    }
+
+    @Test
+    public void testGetByAirlineName() {
+        final Airline delta = airlineDao.getAirlineByName("Delta Air Lines");
+        assertNotNull(delta);
+        assertEquals("DL", delta.getCode());
+    }
+
+    @Test
+    public void testGetAirlineById() {
+        final Airline delta = airlineDao.getAirlineById(2);
+        assertNotNull(delta);
+        assertEquals("DL", delta.getCode());
     }
 }
