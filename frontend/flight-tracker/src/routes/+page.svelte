@@ -1,4 +1,4 @@
-<script>
+<script lang="js">
     let airline = "";
     let departure = "";
     let arrival = "";
@@ -45,22 +45,10 @@
     };
 </script>
 
-<nav>
-    <ul>
-        <li>
-            <a href="/">Home</a>
-        </li>
-        <li>
-            <a href="/map">Map</a>
-        </li>
-        <li>
-            <a href="/">Login</a>
-        </li>
-    </ul>
-</nav>
+  
 
 <main>
-    <h1 class="">✈️ Flight Tracker Search</h1>
+    <h1 class="font-medium text-sky-500">✈️ Flight Tracker Search</h1>
 
     <div>
         <input bind:value={airline} placeholder="Airline (e.g. Air Canada)" />
