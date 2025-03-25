@@ -1,4 +1,4 @@
-<script>
+<script lang="js">
     let airline = "";
     let departure = "";
     let arrival = "";
@@ -45,28 +45,33 @@
     };
 </script>
 
-<nav>
-    <ul>
-        <li>
-            <a href="/">Home</a>
-        </li>
-        <li>
-            <a href="/map">Map</a>
-        </li>
-        <li>
-            <a href="/">Login</a>
-        </li>
-    </ul>
-</nav>
+  
 
-<main>
-    <h1 class="">✈️ Flight Tracker Search</h1>
+<main class="mt-8">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-sky-600">✈️ Flight Tracker Search</h1>
+    </div>
 
     <div>
-        <input bind:value={airline} placeholder="Airline (e.g. Air Canada)" />
-        <input bind:value={departure} placeholder="From (e.g. YUL)" />
-        <input bind:value={arrival} placeholder="To (e.g. YYZ)" />
-        <button on:click={searchFlights}>Search</button>
+        <input
+         bind:value={airline} 
+         placeholder="Airline (e.g. Air Canada)"
+         class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
+
+        <input 
+        bind:value={departure} 
+        placeholder="From (e.g. YUL)"
+        class="border border-gray-300 rounded px-4 py-2 shadow-sm"  />
+
+        <input
+         bind:value={arrival} 
+         placeholder="To (e.g. YYZ)" 
+        class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
+        
+        <button on:click={searchFlights}
+            class="bg-sky-600 text-white rounded px-4 py-2 shadow-sm">
+            Search Flights
+        </button>
     </div>
 
     {#if flights.length > 0}
@@ -88,15 +93,7 @@
 </main>
 
 <style>
-    nav {
-        ul {
-            display: flex;
-            list-style: none;
-        }
-        lo {
-            margin-right: 20px;
-        }
-    }
+
     main {
         font-family: sans-serif;
         padding: 2rem;

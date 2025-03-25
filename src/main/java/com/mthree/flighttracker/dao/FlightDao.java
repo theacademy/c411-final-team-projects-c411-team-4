@@ -4,9 +4,7 @@ import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -17,25 +15,24 @@ import java.util.List;
 @Repository
 public interface FlightDao extends JpaRepository<Flight, Integer> {
 
-    List<Flight> findAll();
+    @Query("SELECT f FROM Flight f")
+    List<Flight> getAllFlights();
 
-    Flight findById(int id);
+    @Query("SELECT f FROM Flight f WHERE f.id = ?1")
+    Flight getFlightById(int id);
 
-    Flight findByNumber(short number, Airline airline);
+    @Query("SELECT f FROM Flight f WHERE f.number = ?1 AND f.airline = ?2")
+    Flight getFlightByNumber(short number, Airline airline);
 
-    List<Flight> findByAirline(Airline airline);
+    @Query("SELECT f FROM Flight f WHERE f.airline = ?1")
+    List<Flight> getFlightsByAirline(Airline airline);
 
-    List<Flight> findFlightsByDate(LocalDateTime date);
+    @Query("SELECT f FROM Flight f WHERE f.scheduledArrival = ?1")
+    List<Flight> getFlightsByDate(LocalDateTime date);
 
-    List<Flight> findFlightsByAirport(Airport airport);
+    @Query("SELECT f FROM Flight f WHERE f.depAirport = ?1")
+    List<Flight> getFlightsByAirport(Airport airport);
 
-    List<Flight> findFlightsByStatus(FlightStatus status);
-
-    default void editFlight(Flight flight){
-        save(flight);
-    }
-
-    @Modifying
-    @Transactional
-    void removeFlight(Flight flight);
+    @Query("SELECT f FROM Flight f WHERE f.status = ?1")
+    List<Flight> getFlightsByStatus(FlightStatus status);
 }
