@@ -26,16 +26,12 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
     @Query("SELECT f FROM Flight f WHERE f.airline = ?1")
     List<Flight> getFlightsByAirline(Airline airline);
 
-    @Query("SELECT f FROM Flight f WHERE f.date = ?1")
+    @Query("SELECT f FROM Flight f WHERE f.scheduledArrival = ?1")
     List<Flight> getFlightsByDate(LocalDate date);
 
-    @Query("SELECT f FROM Flight f WHERE f.airport = ?1")
+    @Query("SELECT f FROM Flight f WHERE f.depAirport = ?1")
     List<Flight> getFlightsByAirport(Airport airport);
 
     @Query("SELECT f FROM Flight f WHERE f.status = ?1")
     List<Flight> getFlightsByStatus(FlightStatus status);
-
-    void editFlight(Flight flight);
-
-    void removeFlight(Flight flight);
 }
