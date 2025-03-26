@@ -1,5 +1,9 @@
 <script lang="ts">
     import PlaneLeaflet from "./PlaneLeaflet.svelte";
+    import SearchFlight from "./SearchFlight.svelte";
 </script>
 
-<PlaneLeaflet />
+<main class=""> 
+    <SearchFlight />
+    <PlaneLeaflet />
+</main>
