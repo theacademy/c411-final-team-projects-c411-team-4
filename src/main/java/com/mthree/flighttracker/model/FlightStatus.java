@@ -25,4 +25,7 @@ public class FlightStatus {
     public String getStatus() {
         return status;
     }
+
+    public int getId(){return id;}
+
 }
