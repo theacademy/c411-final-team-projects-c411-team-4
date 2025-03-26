@@ -1,23 +1,109 @@
 <script lang="ts">
     import type { LatLngExpression } from "leaflet";
     import Leaflet from "$lib/Leaflet.svelte";
-    import Marker from "$lib/Marker.svelte";
-    import Popup from "$lib/Popup.svelte";
-    import PlaneSvg from "$lib/PlaneSvg.svelte";
+    import { onDestroy, onMount } from "svelte";
+    import L from "leaflet";
+    import { createLeafletMap } from "$lib/util";
+
+    const PLANE_ICON_HEIGHT = 50;
+    const PLANE_ICON_WIDTH = 50;
+    const PLANE_POS_QUERY_INTERVAL_MS = 1000;
+    const FAKE_FLIGHT_IATA = "DL0001";
 
     const initialView = [39.8283, -98.5795];
-    let markerLocations: Array<LatLngExpression> = $state([
-        [39.8283, -98.5795],
-    ]);
+
+    let planeNumberToMarker: Map<String, L.Marker> = new Map();
+
+    let mapElement: HTMLElement;
+    let map: L.Map | undefined = undefined;
+
+    let intervalId: number = 0;
+
+    onMount(() => {
+        map = createLeafletMap(mapElement);
+
+        let planeMarker = L.marker(initialView, {
+            icon: createPlaneIcon(),
+            interactive: true,
+            bubblingMouseEvents: false,
+        }).addTo(map);
+        planeNumberToMarker.set(FAKE_FLIGHT_IATA, planeMarker);
+
+        grabPlanePositions();
+    });
+
+    onDestroy(() => {
+        clearInterval(intervalId);
+    });
+
+    function createPlaneIcon(rotation: number = 0) {
+        const html = `<div class="plane-icon" style="transform: rotate(${rotation}deg);">
+                        <img src="https://buckets.kmfg.dev/mthree/plane.png" width="${PLANE_ICON_WIDTH}" height="${PLANE_ICON_HEIGHT}"/>
+                      </div>`;
+        return L.divIcon({
+            html,
+            className: "plane-container",
+            iconSize: [PLANE_ICON_HEIGHT, PLANE_ICON_WIDTH],
+            iconAnchor: [PLANE_ICON_HEIGHT / 2, PLANE_ICON_WIDTH / 2],
+        });
+    }
+
+    function grabPlanePositions() {
+        intervalId = setInterval(() => {
+            let markers = planeNumberToMarker.values();
+            for (const marker of markers) {
+                updatePlanePosition(marker);
+            }
+        }, PLANE_POS_QUERY_INTERVAL_MS);
+    }
+
+    function calculateBearing(start, end) {
+        const latOne = (Math.PI * start[0]) / 180;
+        const longOne = (Math.PI * start[1]) / 180;
+        const latTwo = (Math.PI * end[0]) / 180;
+        const longTwo = (Math.PI * end[1]) / 180;
+
+        const dLong = longTwo - longOne;
+
+        const y = Math.sin(dLong) * Math.cos(latTwo);
+        const x =
+            Math.cos(latOne) * Math.sin(latTwo) -
+            Math.sin(latOne) * Math.cos(latTwo) * Math.cos(dLong);
+
+        const bearing = (Math.atan2(y, x) * 180) / Math.PI;
+
+        return (bearing + 360) % 360;
+    }
+
+    function updatePlanePosition(marker: L.Marker) {
+        const latLngObj = marker.getLatLng();
+        const previousPos = [latLngObj.lat, latLngObj.lng];
+        const addToCurrent = calculateNewTargets();
+        latLngObj.lat += addToCurrent[0];
+        latLngObj.lng += addToCurrent[1];
+        const newPos = [latLngObj.lat, latLngObj.lng];
+        const bearing = calculateBearing(previousPos, newPos);
+        marker.setIcon(createPlaneIcon(bearing));
+        marker.setLatLng(latLngObj);
+    }
+
+    function calculateNewTargets() {
+        const angle = Math.PI / 4;
+
+        const minStep = 0.05 / 64;
+        const maxStep = 0.15 / 64;
+
+        const stepSize = Math.random() * (maxStep - minStep) + minStep;
+
+        const latChange = stepSize * Math.cos(angle);
+        const lonChange = stepSize * Math.sin(angle);
+
+        return [latChange, lonChange];
+    }
 </script>
 
-<div class="w-full h-screen">
-    <Leaflet view={initialView} zoom={14}>
-        {#each markerLocations as latLang}
-            <Marker {latLang} width={100} height={100}>
-                <PlaneSvg />
-                <Popup>Flight DL0123</Popup>
-            </Marker>
-        {/each}
-    </Leaflet>
+<div class="w-full h-screen" bind:this={mapElement}>
+    {#if map}
+        <Leaflet {map} view={initialView} zoom={14}></Leaflet>
+    {/if}
 </div>
