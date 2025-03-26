@@ -15,20 +15,16 @@
 
     const dispatch = createEventDispatcher();
 
-    let map: L.Map | undefined;
-    let mapElement: HTMLElement;
+    export let map: L.Map | undefined;
+    export let mapElement: HTMLElement;
 
     onMount(() => {
         if (!bounds && (!view || !zoom)) {
             throw new Error("Must set either bounds, or view and zoom.");
         }
-
-        map = L.map(mapElement)
-            .on("zoom", (e) => dispatch("zoom", e))
-            .on("popupopen", async (e) => {
-                await tick();
-                e.popup.update();
-            });
+        if (!map) {
+            throw new Error("You must provide a map!");
+        }
 
         L.tileLayer(
             "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
