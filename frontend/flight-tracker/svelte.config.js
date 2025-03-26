@@ -15,7 +15,7 @@ const config = {
     },
     compilerOptions: {
         compatibility: {
-            componentApi: 4
+            componentApi: 5
         }
     }
 };
