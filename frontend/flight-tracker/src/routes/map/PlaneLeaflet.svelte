@@ -7,7 +7,6 @@
     import SearchFlight from "./SearchFlight.svelte";
 
     const PLANE_POS_QUERY_INTERVAL_MS = 1000;
-    const FAKE_FLIGHT_IATA = "DL0001";
 
     const initialView = [39.8283, -98.5795];
 
@@ -15,19 +14,12 @@
 
     let mapElement: HTMLElement;
     let map: L.Map | undefined = undefined;
+    let activePopupMarker: L.Marker | null = null;
 
     let intervalId: number = 0;
 
     onMount(() => {
         map = createLeafletMap(mapElement);
-
-        let planeMarker = L.marker(initialView, {
-            icon: createPlaneIcon(),
-            interactive: true,
-            bubblingMouseEvents: false,
-        }).addTo(map);
-        planeMarker.bindPopup("IATA #" + FAKE_FLIGHT_IATA).openPopup();
-        planeNumberToMarker.set(FAKE_FLIGHT_IATA, planeMarker);
 
         grabPlanePositions();
     });
@@ -55,6 +47,10 @@
             let markers = planeNumberToMarker.values();
             for (const marker of markers) {
                 updatePlanePosition(marker);
+
+                if (activePopupMarker === marker && map) {
+                    map.panTo(marker.getLatLng());
+                }
             }
         }, PLANE_POS_QUERY_INTERVAL_MS);
     }
@@ -92,8 +88,8 @@
     function calculateNewTargets(): number[] {
         const angle = Math.PI / 4;
 
-        const minStep = 0.05 / 32;
-        const maxStep = 0.15 / 32;
+        const minStep = 0.05 / 16;
+        const maxStep = 0.15 / 16;
 
         const stepSize = Math.random() * (maxStep - minStep) + minStep;
 
@@ -103,8 +99,41 @@
         return [latChange, lonChange];
     }
 
+    function addFlightToMap(iataFlightNumber) {
+        let newPos = [...initialView];
+        newPos[0] += Math.random();
+        newPos[1] += Math.random();
+        let planeMarker = L.marker(newPos, {
+            icon: createPlaneIcon(),
+            interactive: true,
+            bubblingMouseEvents: false,
+        }).addTo(map);
+
+        planeMarker.on("popupopen", () => {
+            activePopupMarker = planeMarker;
+            if (map) {
+                map.panTo(planeMarker.getLatLng());
+            }
+        });
+
+        planeMarker.on("popupclose", () => {
+            if (activePopupMarker === planeMarker) {
+                activePopupMarker = null;
+            }
+        });
+
+        planeMarker.bindPopup("IATA #" + iataFlightNumber).openPopup();
+
+        activePopupMarker = planeMarker;
+        if (map) {
+            map.panTo(planeMarker.getLatLng());
+        }
+
+        planeNumberToMarker.set(iataFlightNumber, planeMarker);
+    }
+
     function trackThis(iataFlightNumber) {
-        console.log("From page: " + iataFlightNumber);
+        addFlightToMap(iataFlightNumber);
     }
 </script>
 
