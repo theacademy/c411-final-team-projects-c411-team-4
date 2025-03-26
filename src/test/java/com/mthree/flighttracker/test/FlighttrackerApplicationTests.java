@@ -1,5 +1,6 @@
-package com.mthree.flighttracker;
+package com.mthree.flighttracker.test;
 
+import com.mthree.flighttracker.FlighttrackerApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

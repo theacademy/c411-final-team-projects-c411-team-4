@@ -1,4 +1,107 @@
 package com.mthree.flighttracker.service;
 
-public class FlightServiceImpl {
+import com.mthree.flighttracker.dao.FlightDao;
+import com.mthree.flighttracker.helper.CoordinateHelper;
+import com.mthree.flighttracker.model.Airline;
+import com.mthree.flighttracker.model.Airport;
+import com.mthree.flighttracker.model.Flight;
+import com.mthree.flighttracker.model.FlightStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class FlightServiceImpl implements FlightServiceInterface {
+    private FlightDao flightDao;
+
+    @Autowired
+    FlightServiceImpl(FlightDao flightDao) {
+        this.flightDao = flightDao;
+    }
+
+    @Override
+    public List<Flight> getAllFlights() {
+        return flightDao.getAllFlights();
+    }
+
+    @Override
+    public List<Flight> getFlightsByAirline(Airline airline) {
+        return flightDao.getFlightsByAirline(airline);
+    }
+
+    @Override
+    public List<Flight> getFlightsByDate(LocalDateTime date) {
+        return flightDao.getFlightsByDate(date);
+    }
+
+    @Override
+    public List<Flight> getFlightsByAirport(Airport airport) {
+        return flightDao.getFlightsByAirport(airport);
+    }
+
+    @Override
+    public List<Flight> getFlightsByStatus(FlightStatus status) {
+        return flightDao.getFlightsByStatus(status);
+    }
+
+    @Override
+    public Flight getFlightById(int id) {
+        Flight flight = flightDao.getFlightById(id);
+
+        // For testing purposes
+        if (flight == null) {
+            flight = new Flight();
+
+            Airport airport  = new Airport();
+            airport.setName("Doesn't Exist");
+            airport.setCode("000");
+            airport.setLatitude(CoordinateHelper.createCoord("000.000000"));
+            airport.setLatitude(CoordinateHelper.createCoord("000.000000"));
+
+            Airline airline = new Airline();
+            airline.setName("Doesn't exist");
+            airline.setCode("000");
+
+            flight.setAirline(airline);
+            flight.setArrAirport(airport);
+            flight.setDepAirport(airport);
+            flight.setNumber(0);
+            flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
+            flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
+            flight.setScheduledArrival(LocalDateTime.now());
+            flight.setScheduledDeparture(LocalDateTime.now());
+        }
+
+        return flight;
+    }
+
+    @Override
+    public Flight getFlightByNumber(short number, Airline airline) {
+        Flight flight = flightDao.getFlightByNumber(number, airline);
+
+        // For testing purposes
+        if (flight == null) {
+            flight = new Flight();
+
+            Airport airport  = new Airport();
+            airport.setName("Doesn't Exist");
+            airport.setCode("000");
+            airport.setLatitude(CoordinateHelper.createCoord("000.000000"));
+            airport.setLatitude(CoordinateHelper.createCoord("000.000000"));
+
+            flight.setAirline(airline);
+            flight.setArrAirport(airport);
+            flight.setDepAirport(airport);
+            flight.setNumber(0);
+            flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
+            flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
+            flight.setScheduledArrival(LocalDateTime.now());
+            flight.setScheduledDeparture(LocalDateTime.now());
+        }
+
+        return flight;
+    }
 }
