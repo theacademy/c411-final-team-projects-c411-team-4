@@ -4,6 +4,7 @@
     import { onDestroy, onMount } from "svelte";
     import L from "leaflet";
     import { createLeafletMap } from "$lib/util";
+    import SearchFlight from "./SearchFlight.svelte";
 
     const PLANE_POS_QUERY_INTERVAL_MS = 1000;
     const FAKE_FLIGHT_IATA = "DL0001";
@@ -101,8 +102,13 @@
 
         return [latChange, lonChange];
     }
+
+    function trackThis(iataFlightNumber) {
+        console.log("From page: " + iataFlightNumber);
+    }
 </script>
 
+<SearchFlight flightAdd={trackThis} />
 <div class="w-full h-screen" bind:this={mapElement}>
     {#if map}
         <!-- We are creating the leaflet map like this in order to isolate it from the rest of the program. -->
