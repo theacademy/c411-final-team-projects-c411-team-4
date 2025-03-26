@@ -4,11 +4,9 @@
     import { onDestroy, onMount } from "svelte";
     import L from "leaflet";
     import { createLeafletMap } from "$lib/util";
+    import SearchFlight from "./SearchFlight.svelte";
 
-    const PLANE_ICON_HEIGHT = 50;
-    const PLANE_ICON_WIDTH = 50;
     const PLANE_POS_QUERY_INTERVAL_MS = 1000;
-    const FAKE_FLIGHT_IATA = "DL0001";
 
     const initialView = [39.8283, -98.5795];
 
@@ -16,18 +14,12 @@
 
     let mapElement: HTMLElement;
     let map: L.Map | undefined = undefined;
+    let activePopupMarker: L.Marker | null = null;
 
     let intervalId: number = 0;
 
     onMount(() => {
         map = createLeafletMap(mapElement);
-
-        let planeMarker = L.marker(initialView, {
-            icon: createPlaneIcon(),
-            interactive: true,
-            bubblingMouseEvents: false,
-        }).addTo(map);
-        planeNumberToMarker.set(FAKE_FLIGHT_IATA, planeMarker);
 
         grabPlanePositions();
     });
@@ -37,27 +29,33 @@
     });
 
     function createPlaneIcon(rotation: number = 0) {
-        const html = `<div class="plane-icon" style="transform: rotate(${rotation}deg);">
-                        <img src="https://buckets.kmfg.dev/mthree/plane.png" width="${PLANE_ICON_WIDTH}" height="${PLANE_ICON_HEIGHT}"/>
+        const html = `<div class="plane-image" style="transform: rotate(${rotation}deg);">
+                        <img src="https://buckets.kmfg.dev/mthree/plane.png" class="plane-image"/>
                       </div>`;
         return L.divIcon({
             html,
-            className: "plane-container",
-            iconSize: [PLANE_ICON_HEIGHT, PLANE_ICON_WIDTH],
-            iconAnchor: [PLANE_ICON_HEIGHT / 2, PLANE_ICON_WIDTH / 2],
+            className: "plane-image",
         });
     }
 
+    /**
+     * Grabs plane positions from the API.
+     * Data is currently mocked.
+     */
     function grabPlanePositions() {
         intervalId = setInterval(() => {
             let markers = planeNumberToMarker.values();
             for (const marker of markers) {
                 updatePlanePosition(marker);
+
+                if (activePopupMarker === marker && map) {
+                    map.panTo(marker.getLatLng());
+                }
             }
         }, PLANE_POS_QUERY_INTERVAL_MS);
     }
 
-    function calculateBearing(start, end) {
+    function calculateBearing(start: number[], end: number[]) {
         const latOne = (Math.PI * start[0]) / 180;
         const longOne = (Math.PI * start[1]) / 180;
         const latTwo = (Math.PI * end[0]) / 180;
@@ -87,11 +85,11 @@
         marker.setLatLng(latLngObj);
     }
 
-    function calculateNewTargets() {
+    function calculateNewTargets(): number[] {
         const angle = Math.PI / 4;
 
-        const minStep = 0.05 / 64;
-        const maxStep = 0.15 / 64;
+        const minStep = 0.05 / 16;
+        const maxStep = 0.15 / 16;
 
         const stepSize = Math.random() * (maxStep - minStep) + minStep;
 
@@ -100,10 +98,49 @@
 
         return [latChange, lonChange];
     }
+
+    function addFlightToMap(iataFlightNumber) {
+        let newPos = [...initialView];
+        newPos[0] += Math.random();
+        newPos[1] += Math.random();
+        let planeMarker = L.marker(newPos, {
+            icon: createPlaneIcon(),
+            interactive: true,
+            bubblingMouseEvents: false,
+        }).addTo(map);
+
+        planeMarker.on("popupopen", () => {
+            activePopupMarker = planeMarker;
+            if (map) {
+                map.panTo(planeMarker.getLatLng());
+            }
+        });
+
+        planeMarker.on("popupclose", () => {
+            if (activePopupMarker === planeMarker) {
+                activePopupMarker = null;
+            }
+        });
+
+        planeMarker.bindPopup("IATA #" + iataFlightNumber).openPopup();
+
+        activePopupMarker = planeMarker;
+        if (map) {
+            map.panTo(planeMarker.getLatLng());
+        }
+
+        planeNumberToMarker.set(iataFlightNumber, planeMarker);
+    }
+
+    function trackThis(iataFlightNumber) {
+        addFlightToMap(iataFlightNumber);
+    }
 </script>
 
+<SearchFlight flightAdd={trackThis} />
 <div class="w-full h-screen" bind:this={mapElement}>
     {#if map}
-        <Leaflet {map} view={initialView} zoom={14}></Leaflet>
+        <!-- We are creating the leaflet map like this in order to isolate it from the rest of the program. -->
+        <Leaflet {map} view={initialView} zoom={6}></Leaflet>
     {/if}
 </div>
