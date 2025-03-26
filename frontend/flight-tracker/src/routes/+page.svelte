@@ -47,8 +47,8 @@
 
   
 
-<main>
-    <div class="">
+<main class="mt-8">
+    <div class="mb-8">
         <h1 class="text-2xl font-bold text-sky-600">✈️ Flight Tracker Search</h1>
     </div>
 
@@ -68,7 +68,10 @@
          placeholder="To (e.g. YYZ)" 
         class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
         
-        <button on:click={searchFlights}>Search</button>
+        <button on:click={searchFlights}
+            class="bg-sky-600 text-white rounded px-4 py-2 shadow-sm">
+            Search Flights
+        </button>
     </div>
 
     {#if flights.length > 0}
