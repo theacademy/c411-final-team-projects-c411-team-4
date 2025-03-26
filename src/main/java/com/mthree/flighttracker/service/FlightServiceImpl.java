@@ -1,30 +1,41 @@
 package com.mthree.flighttracker.service;
 
 import com.mthree.flighttracker.dao.FlightDao;
+import com.mthree.flighttracker.dao.FlightStatusDao;
 import com.mthree.flighttracker.helper.CoordinateHelper;
 import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FlightServiceImpl implements FlightServiceInterface {
     private FlightDao flightDao;
+    private FlightStatusDao flightStatusDao;
+
 
     @Autowired
-    FlightServiceImpl(FlightDao flightDao) {
+    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao) {
+        this.flightStatusDao = flightStatusDao;
         this.flightDao = flightDao;
     }
 
     @Override
     public List<Flight> getAllFlights() {
         return flightDao.getAllFlights();
+    }
+
+    public Page<Flight> findAll(Pageable pageable) {
+        return flightDao.findAll(pageable);
     }
 
     @Override
@@ -45,6 +56,11 @@ public class FlightServiceImpl implements FlightServiceInterface {
     @Override
     public List<Flight> getFlightsByStatus(FlightStatus status) {
         return flightDao.getFlightsByStatus(status);
+    }
+
+    public Page<Flight> getFlightsByStatus(String status, Pageable pageable) {
+        FlightStatus flightStatus = flightStatusDao.getFlightStatus(status);
+        return flightDao.getFlightsByStatus(flightStatus, pageable);
     }
 
     @Override
@@ -103,5 +119,9 @@ public class FlightServiceImpl implements FlightServiceInterface {
         }
 
         return flight;
+    }
+
+    public Optional<Flight> findByNumber (int number) {
+        return flightDao.findByNumber(number);
     }
 }

@@ -1,9 +1,12 @@
 package com.mthree.flighttracker.controller;
 
 
+import com.mthree.flighttracker.FlighttrackerApplication;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.FlightStatus;
+import com.mthree.flighttracker.service.FlightServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -11,24 +14,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class FlightController {
 
     // TODO: Add service layer dependency injection
+    @Autowired
+    FlightServiceImpl flightService;
+
+
 
     @GetMapping("/flights")
     public ResponseEntity<Page<Flight>> getAllFlights(
             Pageable pageable,
-            @RequestParam(required = false) FlightStatus status) {
+            @RequestParam(required = false) String status) {
         try {
             //Implement service call
-            // if (status != null) {
-            //     return ResponseEntity.ok(flightService.getAllFlightsByStatus(status, pageable));
-            // }
-            // return ResponseEntity.ok(flightService.getAllFlights(pageable));
-            return ResponseEntity.ok().build();
+            if (status != null) {
+                 Page<Flight> flight = flightService.getFlightsByStatus(status, pageable);
+                 return ResponseEntity.ok(flight);
+            }
+            return ResponseEntity.ok(flightService.findAll(pageable));
+            //return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -79,13 +88,14 @@ public class FlightController {
         }
     }
 
+    // TODO this is causing 404 not found
     @GetMapping("/flight/{flightNumber}")
     public ResponseEntity<Flight> getFlightByNumber(@PathVariable int flightNumber) {
         try {
-            // Optional<Flight> flight = flightService.getFlightByNumber(flightNumber);
-            // return flight.map(ResponseEntity::ok)
-            //             .orElse(ResponseEntity.notFound().build());
-            return ResponseEntity.ok().build();
+            Optional<Flight> flight = flightService.findByNumber(flightNumber);
+            return flight.map(ResponseEntity::ok)
+                         .orElse(ResponseEntity.notFound().build());
+            //return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
