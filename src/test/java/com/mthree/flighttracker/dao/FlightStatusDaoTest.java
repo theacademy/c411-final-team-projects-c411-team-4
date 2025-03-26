@@ -43,6 +43,24 @@ public class FlightStatusDaoTest {
         assertNull(invalid, "No flight should be found for invalid status");
     }
 
-    // add a new status
+    // add a new status assign new ID
+    @Test
+    public void testAddFlightStatus(){
+        FlightStatus status = new FlightStatus().setStatus("Boarding");
+        status = flightStatusDao.save(status);
+
+        assertTrue(status.getId() > 0, "New status has an ID");
+
+        FlightStatus valid = flightStatusDao.getFlightStatus("Boarding");
+        assertNotNull(valid);
+        assertEquals("Boarding", valid.getStatus());
+    }
+
+    // status that doesnt exist
+    @Test
+    public void testInvalidStatus(){
+        FlightStatus status = flightStatusDao.getFlightStatus("Unknown Status");
+        assertNull(status, "Return null for unknown status");
+    }
 
 }
