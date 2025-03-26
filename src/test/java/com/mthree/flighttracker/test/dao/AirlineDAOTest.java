@@ -1,6 +1,7 @@
-package com.mthree.flighttracker.dao;
+package com.mthree.flighttracker.test.dao;
 
 import com.mthree.flighttracker.FlighttrackerApplication;
+import com.mthree.flighttracker.dao.AirlineDao;
 import com.mthree.flighttracker.model.Airline;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

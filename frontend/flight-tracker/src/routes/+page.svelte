@@ -68,6 +68,7 @@
          placeholder="To (e.g. YYZ)" 
         class="border border-gray-300 rounded px-4 py-2 shadow-sm" />
         
+
         <button on:click={searchFlights}
             class="bg-sky-600 text-white rounded px-4 py-2 shadow-sm">
             Search Flights
