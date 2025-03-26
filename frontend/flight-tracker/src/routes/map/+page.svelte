@@ -3,7 +3,6 @@
     import SearchFlight from "./SearchFlight.svelte";
 </script>
 
-<main class=""> 
-    <SearchFlight />
+<main class="">
     <PlaneLeaflet />
 </main>
