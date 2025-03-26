@@ -19,20 +19,20 @@ public class AirportDaoTest {
     AirportDao airportDao;
 
     @Test
-    void testgetAllAirports() {
+    public void testgetAllAirports() {
         final List<Airport> airports = airportDao.getAllAirports();
         assertEquals(10, airports.size());
     }
 
     @Test
-    void testgetAirportByCode() {
+    public void testGetAirportByCode() {
         final Airport losAngeles = airportDao.getAirportByCode("LAX");
-        assertNotNull(losAngeles);
+        assertNotNull(losAngeles, "LAX airport should not be null");
         assertNotEquals(0,losAngeles.getId());
     }
 
     @Test
-    public void testgetAirportById() {
+    public void testGetAirportById() {
         //Id 1 should be JFK
         final Airport airport = airportDao.getAirportById(1);
         assertNotNull(airport);
