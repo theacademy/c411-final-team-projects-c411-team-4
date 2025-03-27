@@ -103,4 +103,18 @@ public class FlightServiceImpl implements FlightServiceInterface {
 
         return flight;
     }
+
+    @Override
+    public Flight updateFlight(Flight flight) {
+        // Add any validation logic here if needed
+        return flightDao.editFlight(flight);
+        // Or directly: return flightDao.save(flight);
+    }
+
+    @Override
+    public void deleteFlight(Flight flight) {
+        flightDao.removeFlight(flight);
+        // Or directly: flightDao.delete(flight);
+    }
+
 }

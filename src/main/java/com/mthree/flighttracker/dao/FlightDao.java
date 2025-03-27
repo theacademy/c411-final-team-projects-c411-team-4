@@ -35,4 +35,10 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
 
     @Query("SELECT f FROM Flight f WHERE f.status = ?1")
     List<Flight> getFlightsByStatus(FlightStatus status);
+
+    // no need to explicitly call `save(flight)` without default
+    Flight editFlight(Flight flight);
+
+    // no need to explicitly call `delete(flight)` without default
+    void removeFlight(Flight flight);
 }

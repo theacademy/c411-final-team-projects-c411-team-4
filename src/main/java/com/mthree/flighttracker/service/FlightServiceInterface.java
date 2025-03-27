@@ -65,4 +65,20 @@ public interface FlightServiceInterface {
      * @return The flight if found, otherwise null
      */
     Flight getFlightByNumber(short number, Airline airline);
+
+    /**
+     * Updates an existing flight in the system
+     *
+     * @param flight The flight object with updated information
+     * @return The updated flight
+     */
+    Flight updateFlight(Flight flight);
+
+    /**
+     * Removes a flight from the system
+     *
+     * @param flight The flight to remove
+     */
+    void deleteFlight(Flight flight);
+
 }
