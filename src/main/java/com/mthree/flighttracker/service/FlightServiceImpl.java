@@ -95,8 +95,8 @@ public class FlightServiceImpl implements FlightServiceInterface {
             flight.setNumber(0);
             flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
             flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
-            flight.setScheduledArrival(LocalDateTime.now());
-            flight.setScheduledDeparture(LocalDateTime.now());
+            flight.setSchedArrival(LocalDateTime.now());
+            flight.setSchedDeparture(LocalDateTime.now());
         }
 
         return flight;
@@ -122,8 +122,8 @@ public class FlightServiceImpl implements FlightServiceInterface {
             flight.setNumber(0);
             flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
             flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
-            flight.setScheduledArrival(LocalDateTime.now());
-            flight.setScheduledDeparture(LocalDateTime.now());
+            flight.setSchedArrival(LocalDateTime.now());
+            flight.setSchedDeparture(LocalDateTime.now());
         }
 
         return flight;
