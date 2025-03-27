@@ -43,21 +43,38 @@ public class FlightController {
         }
     }
 
+   /*
+   // TODO Unsure what to do since we don't have countries in data
+   @GetMapping("/airports")
+   public ResponseEntity<Page<Airport>> getAllAirports(
+           Pageable pageable,
+           @RequestParam(required = false) String country) {
+       try {
+           //Implement service call
+           // if (country != null) {
+           //     return ResponseEntity.ok(airportService.getAirportsByCountry(country, pageable));
+           // }
+           // return ResponseEntity.ok(airportService.getAllAirports(pageable));
+           return ResponseEntity.ok().build();
+       } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+   }
+    */
+
+
     @GetMapping("/airports")
     public ResponseEntity<Page<Airport>> getAllAirports(
             Pageable pageable,
             @RequestParam(required = false) String country) {
         try {
             //Implement service call
-            // if (country != null) {
-            //     return ResponseEntity.ok(airportService.getAirportsByCountry(country, pageable));
-            // }
-            // return ResponseEntity.ok(airportService.getAllAirports(pageable));
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(flightService.findAllAirports(pageable));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<Flight>> searchFlights(
