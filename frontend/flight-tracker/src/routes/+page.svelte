@@ -55,7 +55,20 @@ import { onMount } from 'svelte';
     async function searchFlights() {
     const params = new URLSearchParams();
 
+    if (!airline && !depAirport && !arrAirport) {
+    alert('Please enter at least one search filter.');
+     return;
+    }    
 
+    if (airline) params.append('airline', airline);
+    if (depAirport && arrAirport) {
+    params.append('departing', depAirport);
+    params.append('arrival', arrAirport);
+  } else if (depAirport) {
+    params.append('airport', depAirport);
+  } else if (arrAirport) {
+    params.append('arrival', arrAirport);
+  }
 
     params.append('page', '0');
     params.append('size', '10');
@@ -70,6 +83,8 @@ import { onMount } from 'svelte';
      console.error('Search error:', err);
     }
     }
+
+
 
 </script>
   
