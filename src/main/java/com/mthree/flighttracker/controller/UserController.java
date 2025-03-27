@@ -4,6 +4,8 @@ import com.mthree.flighttracker.dao.UserDao;
 import com.mthree.flighttracker.model.User;
 import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,20 +26,6 @@ public class UserController {
 
     @Autowired
     private JwtEncoder jwtEncoder;
-
-    // Response class for authentication tokens
-    private static class AuthResponse {
-        private String token;
-        private String username;
-
-        public AuthResponse(String token, String username) {
-            this.token = token;
-            this.username = username;
-        }
-
-        public String getToken() { return token; }
-        public String getUsername() { return username; }
-    }
 
     // Request class for user registration
     public static class UserRegistrationRequest {
@@ -102,14 +90,35 @@ public class UserController {
 
             // Generate token and return response
             String token = jwtEncoder.generateToken(user.getUsername());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new AuthResponse(token, user.getUsername()));
-
+            ResponseCookie jwtCookie = ResponseCookie
+                    .from("flight_token", token)
+                    .httpOnly(true)
+                    .path("/")
+                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie removeTokenCookie = ResponseCookie
+                .from("flight_token", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.SET_COOKIE, removeTokenCookie.toString())
+                .build();
     }
 
     @PostMapping("/login")
@@ -123,8 +132,15 @@ public class UserController {
 
             // Generate token and return response
             String token = jwtEncoder.generateToken(user.getUsername());
-            return ResponseEntity.ok(new AuthResponse(token, user.getUsername()));
-
+            ResponseCookie jwtCookie = ResponseCookie
+                    .from("flight_token", token)
+                    .httpOnly(true)
+                    .path("/")
+                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {

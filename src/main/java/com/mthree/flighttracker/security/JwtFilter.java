@@ -3,6 +3,7 @@ package com.mthree.flighttracker.security;
 import com.mthree.flighttracker.controller.JwtEncoder;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +26,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        final Cookie[] cookies = request.getCookies();
+        Cookie flightTokenCookie = null;
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        for(Cookie cookie : cookies) {
+            if(cookie.getName().equalsIgnoreCase("flight_token")) {
+                flightTokenCookie = cookie;
+                break;
+            }
+        }
+
+        if(flightTokenCookie == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
+        final String jwt = flightTokenCookie.getValue();
         final String username = jwtEncoder.validateToken(jwt);
 
         if(username == null || SecurityContextHolder.getContext().getAuthentication() != null) {
