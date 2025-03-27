@@ -1,14 +1,9 @@
 package com.mthree.flighttracker.service;
 
-import com.mthree.flighttracker.model.Airline;
-import com.mthree.flighttracker.model.Airport;
-import com.mthree.flighttracker.model.Flight;
-import com.mthree.flighttracker.model.FlightStatus;
+import com.mthree.flighttracker.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

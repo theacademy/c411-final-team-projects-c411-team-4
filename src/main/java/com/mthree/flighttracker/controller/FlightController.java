@@ -1,28 +1,26 @@
 package com.mthree.flighttracker.controller;
 
 
-import com.mthree.flighttracker.model.Airline;
-import com.mthree.flighttracker.model.Flight;
-import com.mthree.flighttracker.model.Airport;
+import com.mthree.flighttracker.model.*;
 import com.mthree.flighttracker.service.FlightServiceImpl;
+import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class FlightController {
-
-    // TODO: Add service layer dependency injection
     @Autowired
     FlightServiceImpl flightService;
-
-
+    @Autowired
+    UserHistoryService userHistoryService;
 
     @GetMapping("/flights")
     public ResponseEntity<Page<Flight>> getAllFlights(
@@ -79,27 +77,27 @@ public class FlightController {
    public ResponseEntity<?> searchFlights(
            Pageable pageable,
            @RequestParam(required = false) String airline,
-           @RequestParam(required = false) String destination,
+           @RequestParam(required = false) String departing,
            @RequestParam(required = false) String arrival,
            @RequestParam(required = false) String airport) {
 
 
        try {
            // Validate that at least one parameter is provided
-           if (airline == null && destination == null && arrival == null && airport == null) {
+           if (airline == null && departing == null && arrival == null && airport == null) {
                return ResponseEntity.badRequest().build();
            }
 
 
            // Validate that airport is not used with destination or arrival
-           if (airport != null && (destination != null || arrival != null)) {
+           if (airport != null && (departing != null || arrival != null)) {
                return ResponseEntity.badRequest().build();
            }
 
+           final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+           updateUserSearchHistory(auth, airline, departing, arrival, airport);
 
-           // Implement service call
-           //List<Flight> flights = flightService.searchFlights(airline, destination, arrival, airport, pageable);
-           return ResponseEntity.ok(flightService.searchFlights(airline, destination, arrival, airport, pageable));
+           return ResponseEntity.ok(flightService.searchFlights(airline, departing, arrival, airport, pageable));
            //return ResponseEntity.ok().build();
        } catch (IllegalArgumentException e) {
            return ResponseEntity.badRequest().build();
@@ -108,8 +106,31 @@ public class FlightController {
        }
    }
 
+    private void updateUserSearchHistory(Authentication auth, String airline, String departing, String arrival, String airport) {
+        if(auth.getName() == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof UserDetails)) {
+            return;
+        }
+        final UserSearchHistory history = new UserSearchHistory();
+        history.setUser(new User().setUsername(auth.getName()));
 
+        if(airline != null) {
+            history.setAirline(new Airline().setCode(airline));
+        }
 
+        if(departing != null) {
+            history.setDepAirport(new Airport().setCode(departing));
+        }
+
+        if(arrival != null) {
+            history.setArrAirport(new Airport().setCode(arrival));
+        }
+
+        if(airport != null) {
+            history.setSoleAirport(new Airport().setCode(airport));
+        }
+
+        userHistoryService.addHistoryToUser(history);
+    }
 
     @GetMapping("/flight/{flightNumber}")
     public ResponseEntity<Page<Flight>> getFlightByNumber(
