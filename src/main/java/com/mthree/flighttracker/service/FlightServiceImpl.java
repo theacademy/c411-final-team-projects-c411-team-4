@@ -1,5 +1,7 @@
 package com.mthree.flighttracker.service;
 
+import com.mthree.flighttracker.dao.AirlineDao;
+import com.mthree.flighttracker.dao.AirportDao;
 import com.mthree.flighttracker.dao.FlightDao;
 import com.mthree.flighttracker.dao.FlightStatusDao;
 import com.mthree.flighttracker.helper.CoordinateHelper;
@@ -21,13 +23,20 @@ import java.util.Optional;
 public class FlightServiceImpl implements FlightServiceInterface {
     private FlightDao flightDao;
     private FlightStatusDao flightStatusDao;
+    private AirlineDao airlineDao;
+    private AirportDao airportDao;
+
+
 
 
     @Autowired
-    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao) {
+    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
         this.flightStatusDao = flightStatusDao;
         this.flightDao = flightDao;
+        this.airlineDao = airlineDao;
+        this.airportDao = airportDao;
     }
+
 
     @Override
     public List<Flight> getAllFlights() {
@@ -121,7 +130,15 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flight;
     }
 
+    public Page<Flight> findByNumber(short number, Pageable pageable) {
+        return flightDao.findByNumber(number, pageable);
+    }
+
     public Optional<Flight> findByNumber (int number) {
         return flightDao.findByNumber(number);
+    }
+
+    public Page<Airport> findAllAirports(Pageable pageable) {
+        return airportDao.findAll(pageable);
     }
 }
