@@ -157,23 +157,15 @@ public class FlightController {
         }
     }
 
-    @GetMapping("/flight/iata/{flightNumber}")
-    public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String flightNumber) {
-        if(flightNumber.length() != 6) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        final String airlineCode = flightNumber.substring(0, 2);
-
+    @GetMapping("/flight/{airlineCode}/{flightNumber}")
+    public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String airlineCode, @PathVariable short flightNumber) {
         final Airline airline = flightService.getAirlineByCode(airlineCode);
 
         if(airline == null) {
             return ResponseEntity.notFound().build();
         }
 
-        final short number = Short.parseShort(flightNumber.substring(2));
-
-        final Flight flight = flightService.getLatestFlightByNumber(number, airline);
+        final Flight flight = flightService.getLatestFlightByNumber(flightNumber, airline);
 
         if(flight == null) {
             return ResponseEntity.notFound().build();
