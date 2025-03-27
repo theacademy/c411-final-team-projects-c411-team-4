@@ -148,31 +148,19 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserProfile(
-            @RequestHeader(value = "Authorization", required = true) String token) {
-        try {
-            // Validate token
-            String username = jwtEncoder.validateToken(token);
-            if (username == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-            }
-
-            // Get user profile
-            User user = userDao.findByUsername(username);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            // Don't send password in response
-            user.setPassword(null);
-            return ResponseEntity.ok(user);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
+    public ResponseEntity<?> getUserProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userDao.findByUsername(auth.getName());
+        if (user == null) {
+            // this should be a server error if we auth a jwt
+            // but the user for the jwt doesnt exist
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        // Don't send password in response
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/profile")
