@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -96,8 +95,8 @@ public class FlightServiceImpl implements FlightServiceInterface {
             flight.setNumber(0);
             flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
             flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
-            flight.setScheduledArrival(LocalDateTime.now());
-            flight.setScheduledDeparture(LocalDateTime.now());
+            flight.setSchedArrival(LocalDateTime.now());
+            flight.setSchedDeparture(LocalDateTime.now());
         }
 
         return flight;
@@ -123,8 +122,8 @@ public class FlightServiceImpl implements FlightServiceInterface {
             flight.setNumber(0);
             flight.setLatitude(CoordinateHelper.createCoord("000.000000"));
             flight.setLongitude(CoordinateHelper.createCoord("000.000000"));
-            flight.setScheduledArrival(LocalDateTime.now());
-            flight.setScheduledDeparture(LocalDateTime.now());
+            flight.setSchedArrival(LocalDateTime.now());
+            flight.setSchedDeparture(LocalDateTime.now());
         }
 
         return flight;
