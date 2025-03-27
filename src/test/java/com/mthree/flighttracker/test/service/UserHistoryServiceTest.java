@@ -52,7 +52,7 @@ public class UserHistoryServiceTest {
         addToHistory("AA");
         addToHistory("WN");
         final List<UserSearchHistory> histories = historyService.getHistoryByUsername(user.getUsername());
-        assertTrue(histories.size() > 3);
+        assertEquals(histories.size(), 4);
     }
 
     private void addToHistory(String airlineCode) {
