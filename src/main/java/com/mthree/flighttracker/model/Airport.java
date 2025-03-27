@@ -3,6 +3,7 @@ package com.mthree.flighttracker.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 public class Airport {
@@ -24,25 +25,8 @@ public class Airport {
 
     public Airport() {}
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
     public Airport setId(int id) {
         this.id = id;
-        return this;
-    }
-
-    public Airport setName(String name) {
-        this.name = name;
         return this;
     }
 
@@ -51,12 +35,9 @@ public class Airport {
         return this;
     }
 
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
+    public Airport setName(String name) {
+        this.name = name;
+        return this;
     }
 
     public Airport setLatitude(BigDecimal latitude) {
@@ -67,5 +48,37 @@ public class Airport {
     public Airport setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
         return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Airport airport = (Airport) o;
+        return id == airport.id && Objects.equals(name, airport.name) && Objects.equals(code, airport.code) && Objects.equals(latitude, airport.latitude) && Objects.equals(longitude, airport.longitude);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, code, latitude, longitude);
     }
 }

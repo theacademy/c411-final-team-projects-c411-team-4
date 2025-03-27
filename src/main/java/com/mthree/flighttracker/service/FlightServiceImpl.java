@@ -1,29 +1,49 @@
 package com.mthree.flighttracker.service;
 
+import com.mthree.flighttracker.dao.AirlineDao;
+import com.mthree.flighttracker.dao.AirportDao;
 import com.mthree.flighttracker.dao.FlightDao;
+import com.mthree.flighttracker.dao.FlightStatusDao;
 import com.mthree.flighttracker.helper.CoordinateHelper;
 import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FlightServiceImpl implements FlightServiceInterface {
     private FlightDao flightDao;
+    private FlightStatusDao flightStatusDao;
+    private AirlineDao airlineDao;
+    private AirportDao airportDao;
+
+
+
 
     @Autowired
-    FlightServiceImpl(FlightDao flightDao) {
+    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
+        this.flightStatusDao = flightStatusDao;
         this.flightDao = flightDao;
+        this.airlineDao = airlineDao;
+        this.airportDao = airportDao;
     }
+
 
     @Override
     public List<Flight> getAllFlights() {
         return flightDao.getAllFlights();
+    }
+
+    public Page<Flight> findAll(Pageable pageable) {
+        return flightDao.findAll(pageable);
     }
 
     @Override
@@ -36,7 +56,6 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flightDao.getFlightsByDate(date);
     }
 
-    @Override
     public List<Flight> getFlightsByAirport(Airport airport) {
         return flightDao.getFlightsByAirport(airport);
     }
@@ -44,6 +63,11 @@ public class FlightServiceImpl implements FlightServiceInterface {
     @Override
     public List<Flight> getFlightsByStatus(FlightStatus status) {
         return flightDao.getFlightsByStatus(status);
+    }
+
+    public Page<Flight> getFlightsByStatus(String status, Pageable pageable) {
+        FlightStatus flightStatus = flightStatusDao.getFlightStatus(status);
+        return flightDao.getFlightsByStatus(flightStatus, pageable);
     }
 
     @Override
@@ -104,6 +128,92 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flight;
     }
 
+
+   public Page<?> searchFlights(String airline, String destination, String arrival, String airport, Pageable pageable) {
+       if (airline == null) {
+           if (airport != null && (arrival == null && destination == null)) {
+               Airport airport1 = airportDao.getAirportByCode(airport);
+               return flightDao.getFlightsByAirport(airport1, pageable);
+           }
+           if (arrival != null && (airport == null && destination == null)) {
+               Airport airport1 = airportDao.getAirportByCode(arrival);
+               return flightDao.getFlightsByArrAirport(airport1, pageable);
+           }
+           if (destination != null && (airport == null && arrival == null)) {
+               Airport airport1 = airportDao.getAirportByCode(destination);
+               return flightDao.getFlightsByDepAirport(airport1, pageable);
+           }
+       }
+
+
+       if (airline != null) {
+           if (airport == null && arrival == null && destination == null) {
+               Airline airline1 = airlineDao.getAirlineByName(airline);
+               return flightDao.getFlightsByAirline(airline1, pageable);
+           }
+           if (airport != null && (arrival == null && destination == null)) {
+               Airport airport1 = airportDao.getAirportByCode(airport);
+               Airline airline1 = airlineDao.getAirlineByName(airline);
+
+               return flightDao.getFlightsByAirportAndAirline(airport1, airline1, pageable);
+           }
+
+
+           if (arrival != null && (airport == null && destination == null)) {
+               Airport airport1 = airportDao.getAirportByCode(arrival);
+               Airline airline1 = airlineDao.getAirlineByName(airline);
+
+               return flightDao.getFlightsByArrAirportAndAirline(airport1, airline1, pageable);
+           }
+
+
+           if (destination != null && (airport == null && arrival == null)) {
+               Airport airport1 = airportDao.getAirportByCode(destination);
+               Airline airline1 = airlineDao.getAirlineByName(airline);
+               return flightDao.getFlightsByDepAirportAndAirline(airport1, airline1, pageable);
+           }
+       }
+
+
+       return null;
+   }
+
+
+    public Optional<Flight> getByNumber(short number, String airline) {
+        System.out.println(airline);
+        Airline airline1 = airlineDao.getAirlineByCode(airline);
+        if (airline1 == null) {
+            System.out.println("Null airline");
+        }
+        Optional<Flight> flight = flightDao.getByNumberAirline(number, airline1);
+
+
+        return flight;
+    }
+
+
+    @Override
+    public Airline getAirlineByCode(String code) {
+        return airlineDao.getAirlineByCode(code);
+    }
+
+    @Override
+    public Flight getLatestFlightByNumber(short number, Airline airline) {
+        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
+    }
+
+    public Page<Flight> findByNumber(short number, Pageable pageable) {
+        return flightDao.findByNumber(number, pageable);
+    }
+
+    public Optional<Flight> findByNumber (int number) {
+        return flightDao.findByNumber((short) number);
+    }
+
+    public Page<Airport> findAllAirports(Pageable pageable) {
+        return airportDao.findAll(pageable);
+    }
+
     @Override
     public Flight updateFlight(Flight flight) {
         // Add any validation logic here if needed
@@ -116,5 +226,4 @@ public class FlightServiceImpl implements FlightServiceInterface {
         flightDao.removeFlight(flight);
         // Or directly: flightDao.delete(flight);
     }
-
 }

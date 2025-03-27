@@ -47,12 +47,17 @@
 
   
 
-<main class="mt-8">
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-sky-600">✈️ Flight Tracker Search</h1>
-    </div>
+<main class="flex flex-col min-h-screen bg-gray-50">
 
-    <div>
+    <div class="bg-sky-700 py-20">
+        <h1 class="text-3xl font-bold text-white text-center">
+          ✈️ Flight Tracker Search 🛫
+        </h1>
+      </div>
+  
+
+    <div class="bg-white p-4 rounded shadow flex flex-wrap justify-center gap-4 border border-gray-200">
+        <div class="flex flex-wrap justify-center gap-4">
         <input
          bind:value={airline} 
          placeholder="Airline (e.g. Air Canada)"
@@ -71,8 +76,9 @@
 
         <button on:click={searchFlights}
             class="bg-sky-600 text-white rounded px-4 py-2 shadow-sm">
-            Search Flights
+            🔍 Search Flights
         </button>
+    </div>
     </div>
 
     {#if flights.length > 0}

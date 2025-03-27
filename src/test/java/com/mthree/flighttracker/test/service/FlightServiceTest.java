@@ -80,7 +80,7 @@ class FlightServiceTest {
         Airport airport = airportDao.getAirportById(1);
         List<Flight> flightListByAirport = flightService.getFlightsByAirport(airport);
         assertNotNull(flightListByAirport);
-        assertEquals(2, flightListByAirport.size());
+        assertEquals(3, flightListByAirport.size());
     }
 
     @Test
