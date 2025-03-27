@@ -117,7 +117,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 DROP TABLE IF EXISTS `c411_final_project_flights`.`user` ;
 
 CREATE TABLE IF NOT EXISTS `c411_final_project_flights`.`user` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50) NOT NULL,
   `password` VARCHAR(50) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
