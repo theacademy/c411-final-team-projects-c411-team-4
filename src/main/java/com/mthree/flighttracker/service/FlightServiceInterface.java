@@ -4,6 +4,8 @@ import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
@@ -48,6 +50,7 @@ public interface FlightServiceInterface {
      * @return List of flights with the specified status
      */
     List<Flight> getFlightsByStatus(FlightStatus status);
+    Page<Flight> getFlightsByStatus(String status, Pageable pageable);
 
     /**
      * Gets a specific flight by its ID
