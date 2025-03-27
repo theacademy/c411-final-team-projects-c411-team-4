@@ -103,44 +103,6 @@ public class FlightController {
         }
     }
 
-   /*
-   // TODO Doesn't exactly work because of multiple uses of the same flightNumber
-   @GetMapping("/flight/{flightNumber}")
-   public ResponseEntity<Flight> getFlightByNumber(@PathVariable int flightNumber) {
-       try {
-           Optional<Flight> flight = flightService.findByNumber(flightNumber);
-           return flight.map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.notFound().build());
-           //return ResponseEntity.ok().build();
-       } catch (IllegalArgumentException e) {
-           return ResponseEntity.badRequest().build();
-       } catch (Exception e) {
-           System.out.println(e.getMessage());
-           e.printStackTrace();
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-       }
-   }
-
-
-   // TODO Doesn't exactly work because of multiple uses of the same airline/flightNumber
-   @GetMapping("/flight")
-   public ResponseEntity<Flight> getFlightByNumber(
-           @RequestParam(required = true) String airlineCode,
-           @RequestParam(required = true) int flightNumber) {
-       try {
-           Optional<Flight> flight = flightService.getByNumber((short) flightNumber, airlineCode);
-           return flight.map(ResponseEntity::ok)
-                   .orElse(ResponseEntity.notFound().build());
-           //return ResponseEntity.ok().build();
-       } catch (IllegalArgumentException e) {
-           return ResponseEntity.badRequest().build();
-       } catch (Exception e) {
-           System.out.println(e.getMessage());
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-       }
-   }
-    */
-
     @GetMapping("/flight/{flightNumber}")
     public ResponseEntity<Page<Flight>> getFlightByNumber(
             Pageable pageable,
