@@ -33,8 +33,8 @@ public class FlightController {
         try {
             //Implement service call
             if (status != null) {
-                 Page<Flight> flight = flightService.getFlightsByStatus(status, pageable);
-                 return ResponseEntity.ok(flight);
+                Page<Flight> flight = flightService.getFlightsByStatus(status, pageable);
+                return ResponseEntity.ok(flight);
             }
             return ResponseEntity.ok(flightService.findAll(pageable));
             //return ResponseEntity.ok().build();
@@ -42,6 +42,7 @@ public class FlightController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
    /*
    // TODO Unsure what to do since we don't have countries in data
@@ -76,34 +77,41 @@ public class FlightController {
     }
 
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Flight>> searchFlights(
-            @RequestParam(required = false) String airline,
-            @RequestParam(required = false) String destination,
-            @RequestParam(required = false) String arrival,
-            @RequestParam(required = false) String airport) {
+   @GetMapping("/search")
+   public ResponseEntity<?> searchFlights(
+           Pageable pageable,
+           @RequestParam(required = false) String airline,
+           @RequestParam(required = false) String destination,
+           @RequestParam(required = false) String arrival,
+           @RequestParam(required = false) String airport) {
 
-        try {
-            // Validate that at least one parameter is provided
-            if (airline == null && destination == null && arrival == null && airport == null) {
-                return ResponseEntity.badRequest().build();
-            }
 
-            // Validate that airport is not used with destination or arrival
-            if (airport != null && (destination != null || arrival != null)) {
-                return ResponseEntity.badRequest().build();
-            }
+       try {
+           // Validate that at least one parameter is provided
+           if (airline == null && destination == null && arrival == null && airport == null) {
+               return ResponseEntity.badRequest().build();
+           }
 
-            // Implement service call
-            // List<Flight> flights = flightService.searchFlights(airline, destination, arrival, airport);
-            // return ResponseEntity.ok(flights);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+
+           // Validate that airport is not used with destination or arrival
+           if (airport != null && (destination != null || arrival != null)) {
+               return ResponseEntity.badRequest().build();
+           }
+
+
+           // Implement service call
+           //List<Flight> flights = flightService.searchFlights(airline, destination, arrival, airport, pageable);
+           return ResponseEntity.ok(flightService.searchFlights(airline, destination, arrival, airport, pageable));
+           //return ResponseEntity.ok().build();
+       } catch (IllegalArgumentException e) {
+           return ResponseEntity.badRequest().build();
+       } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
+   }
+
+
+
 
    /*
    // TODO Doesn't exactly work because of multiple uses of the same flightNumber
@@ -160,3 +168,4 @@ public class FlightController {
         }
     }
 }
+
