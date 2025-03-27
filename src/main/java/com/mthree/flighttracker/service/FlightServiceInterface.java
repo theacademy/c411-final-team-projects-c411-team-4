@@ -20,6 +20,7 @@ public interface FlightServiceInterface {
      */
     List<Flight> getAllFlights();
 
+
     /**
      * Gets flights by airline
      *
@@ -27,6 +28,7 @@ public interface FlightServiceInterface {
      * @return List of flights operated by the specified airline
      */
     List<Flight> getFlightsByAirline(Airline airline);
+
 
     /**
      * Gets flights by date
@@ -36,13 +38,6 @@ public interface FlightServiceInterface {
      */
     List<Flight> getFlightsByDate(LocalDateTime date);
 
-    /**
-     * Gets flights by airport (either departure or arrival)
-     *
-     * @param airport The airport
-     * @return List of flights departing from or arriving at the specified airport
-     */
-    List<Flight> getFlightsByAirport(Airport airport);
 
     /**
      * Gets flights by status
@@ -52,6 +47,7 @@ public interface FlightServiceInterface {
     List<Flight> getFlightsByStatus(FlightStatus status);
     Page<Flight> getFlightsByStatus(String status, Pageable pageable);
 
+
     /**
      * Gets a specific flight by its ID
      *
@@ -59,6 +55,7 @@ public interface FlightServiceInterface {
      * @return The flight if found, otherwise null
      */
     Flight getFlightById(int id);
+
 
     /**
      * Gets a flight by its number and airline
@@ -68,4 +65,21 @@ public interface FlightServiceInterface {
      * @return The flight if found, otherwise null
      */
     Flight getFlightByNumber(short number, Airline airline);
+
+    /**
+     * Gets an airline by its code
+     *
+     * @param code Airline Code
+     * @return The airline if found, otherwise null
+     */
+    Airline getAirlineByCode(String code);
+
+    /**
+     * Get the latest flight by IATA Flight Number.
+     * Flight numbers can be historically reused, even across airlines. This will get the latest.
+     * @param number flight number
+     * @param airline airline for the flight
+     * @return latest flight, if it exists, otherwise null
+     */
+    Flight getLatestFlightByNumber(short number, Airline airline);
 }

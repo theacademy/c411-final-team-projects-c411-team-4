@@ -13,12 +13,10 @@ public class FlightStatus {
 
     public FlightStatus() {}
 
-    public FlightStatus(String status) {
-        this.status = status;
-    }
+    public int getId(){return id;}
 
-    public FlightStatus setStatus(String status) {
-        this.status = status;
+    public FlightStatus setId(int id) {
+        this.id = id;
         return this;
     }
 
@@ -26,6 +24,8 @@ public class FlightStatus {
         return status;
     }
 
-    public int getId(){return id;}
-
+    public FlightStatus setStatus(String status) {
+        this.status = status;
+        return this;
+    }
 }

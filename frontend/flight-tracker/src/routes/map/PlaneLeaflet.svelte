@@ -127,6 +127,7 @@
         activePopupMarker = planeMarker;
         if (map) {
             map.panTo(planeMarker.getLatLng());
+            map.setZoom(14);
         }
 
         planeNumberToMarker.set(iataFlightNumber, planeMarker);

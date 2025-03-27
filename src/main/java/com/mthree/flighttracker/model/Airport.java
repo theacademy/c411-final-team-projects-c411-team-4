@@ -3,6 +3,7 @@ package com.mthree.flighttracker.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 public class Airport {
@@ -67,5 +68,17 @@ public class Airport {
 
     public BigDecimal getLongitude() {
         return longitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Airport airport = (Airport) o;
+        return id == airport.id && Objects.equals(name, airport.name) && Objects.equals(code, airport.code) && Objects.equals(latitude, airport.latitude) && Objects.equals(longitude, airport.longitude);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, code, latitude, longitude);
     }
 }

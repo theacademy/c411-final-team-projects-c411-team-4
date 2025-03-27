@@ -23,12 +23,12 @@ public class Flight {
     @JoinColumn(name = "arr_airport_id")
     private Airport arrAirport;
 
+    @Column(name = "number")
+    private int number;
+
     @ManyToOne
     @JoinColumn(name = "airline_id")
     private Airline airline;
-
-    @Column(name = "number")
-    private int number;
 
     @Column(name = "scheduled_arrival")
     private LocalDateTime scheduledArrival;
@@ -50,9 +50,57 @@ public class Flight {
 
     public Flight() {}
 
+    public int getId() {
+        return id;
+    }
+
     public Flight setId(int id) {
         this.id = id;
         return this;
+    }
+
+    public FlightStatus getStatus() {
+        return status;
+    }
+
+    public Airport getDepAirport() {
+        return depAirport;
+    }
+
+    public Airport getArrAirport() {
+        return arrAirport;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public Airline getAirline() {
+        return airline;
+    }
+
+    public LocalDateTime getSchedArrival() {
+        return scheduledArrival;
+    }
+
+    public LocalDateTime getSchedDeparture() {
+        return scheduledDeparture;
+    }
+
+    public LocalDateTime getEstArrival() {
+        return estimatedArrival;
+    }
+
+    public LocalDateTime getEstDeparture() {
+        return estimatedDeparture;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
     }
 
     public Flight setStatus(FlightStatus status) {
@@ -70,33 +118,33 @@ public class Flight {
         return this;
     }
 
-    public Flight setAirline(Airline airline) {
-        this.airline = airline;
-        return this;
-    }
-
     public Flight setNumber(int number) {
         this.number = number;
         return this;
     }
 
-    public Flight setScheduledArrival(LocalDateTime scheduledArrival) {
-        this.scheduledArrival = scheduledArrival;
+    public Flight setAirline(Airline airline) {
+        this.airline = airline;
         return this;
     }
 
-    public Flight setScheduledDeparture(LocalDateTime scheduledDeparture) {
-        this.scheduledDeparture = scheduledDeparture;
+    public Flight setSchedArrival(LocalDateTime schedArrival) {
+        this.scheduledArrival = schedArrival;
         return this;
     }
 
-    public Flight setEstimatedArrival(LocalDateTime estimatedArrival) {
-        this.estimatedArrival = estimatedArrival;
+    public Flight setSchedDeparture(LocalDateTime schedDeparture) {
+        this.scheduledDeparture = schedDeparture;
         return this;
     }
 
-    public Flight setEstimatedDeparture(LocalDateTime estimatedDeparture) {
-        this.estimatedDeparture = estimatedDeparture;
+    public Flight setEstArrival(LocalDateTime estArrival) {
+        this.estimatedArrival = estArrival;
+        return this;
+    }
+
+    public Flight setEstDeparture(LocalDateTime estDeparture) {
+        this.estimatedDeparture = estDeparture;
         return this;
     }
 
@@ -110,51 +158,4 @@ public class Flight {
         return this;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public FlightStatus getStatus() {
-        return status;
-    }
-
-    public Airport getDepAirport() {
-        return depAirport;
-    }
-
-    public Airport getArrAirport() {
-        return arrAirport;
-    }
-
-    public Airline getAirline() {
-        return airline;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public LocalDateTime getScheduledArrival() {
-        return scheduledArrival;
-    }
-
-    public LocalDateTime getScheduledDeparture() {
-        return scheduledDeparture;
-    }
-
-    public LocalDateTime getEstimatedArrival() {
-        return estimatedArrival;
-    }
-
-    public LocalDateTime getEstimatedDeparture() {
-        return estimatedDeparture;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
 }
