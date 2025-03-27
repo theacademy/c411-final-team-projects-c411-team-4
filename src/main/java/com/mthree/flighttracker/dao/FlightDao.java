@@ -85,10 +85,4 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
 
     @Query("SELECT f FROM Flight f WHERE f.depAirport = ?1 AND f.airline = ?2")
     Page<Flight> getFlightsByDepAirportAndAirline(Airport airport, Airline airline, Pageable pageable);
-
-    // no need to explicitly call `save(flight)` without default
-    Flight editFlight(Flight flight);
-
-    // no need to explicitly call `delete(flight)` without default
-    void removeFlight(Flight flight);
 }
