@@ -56,7 +56,6 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flightDao.getFlightsByDate(date);
     }
 
-    @Override
     public List<Flight> getFlightsByAirport(Airport airport) {
         return flightDao.getFlightsByAirport(airport);
     }
