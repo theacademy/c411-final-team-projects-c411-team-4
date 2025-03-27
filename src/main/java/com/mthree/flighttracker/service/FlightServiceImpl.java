@@ -129,6 +129,16 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flight;
     }
 
+    @Override
+    public Airline getAirlineByCode(String code) {
+        return airlineDao.getAirlineByCode(code);
+    }
+
+    @Override
+    public Flight getLatestFlightByNumber(short number, Airline airline) {
+        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
+    }
+
     public Page<Flight> findByNumber(short number, Pageable pageable) {
         return flightDao.findByNumber(number, pageable);
     }
