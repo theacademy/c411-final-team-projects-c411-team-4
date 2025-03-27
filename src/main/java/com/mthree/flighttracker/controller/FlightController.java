@@ -5,6 +5,7 @@ import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.service.FlightServiceImpl;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -119,6 +123,29 @@ public class FlightController {
         }
     }
 
+    private HashMap<String, FlightLocation> flightLocations = new HashMap<>();
+
+    private static class FlightLocation {
+        @Getter
+        private BigDecimal latitude;
+        @Getter
+        private BigDecimal longitude;
+        private final BigDecimal latIncrement;
+        private final BigDecimal longIncrement;
+
+        public FlightLocation(BigDecimal initialLat, BigDecimal initialLong) {
+            this.latitude = initialLat;
+            this.longitude = initialLong;
+            this.latIncrement = new BigDecimal(Math.random() * 0.003 - 0.001).setScale(6, RoundingMode.HALF_UP);
+            this.longIncrement = new BigDecimal(Math.random() * 0.003 - 0.001).setScale(6, RoundingMode.HALF_UP);
+        }
+
+        public void updateLocation() {
+            latitude = latitude.add(latIncrement);
+            longitude = longitude.add(longIncrement);
+        }
+    }
+
     @GetMapping("/flight/{airlineCode}/{flightNumber}")
     public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String airlineCode, @PathVariable short flightNumber) {
         final Airline airline = flightService.getAirlineByCode(airlineCode);
@@ -132,6 +159,28 @@ public class FlightController {
         if(flight == null) {
             return ResponseEntity.notFound().build();
         }
+
+        final String flightKey = airlineCode + "-" + flightNumber;
+
+        final FlightLocation location = flightLocations.computeIfAbsent(flightKey, k -> {
+            double minLat = 24.396308;  // florida
+            double maxLat = 49.384358;  // canada
+            double minLng = -125.000000;  // west
+            double maxLng = -66.934570;  // east
+
+            double randomLat = minLat + Math.random() * (maxLat - minLat);
+            double randomLng = minLng + Math.random() * (maxLng - minLng);
+
+            return new FlightLocation(
+                    new BigDecimal(randomLat).setScale(6, RoundingMode.HALF_UP),
+                    new BigDecimal(randomLng).setScale(6, RoundingMode.HALF_UP)
+            );
+        });
+
+        flight.setLatitude(location.getLatitude());
+        flight.setLongitude(location.getLongitude());
+
+        location.updateLocation();
 
         return ResponseEntity.ok(flight);
     }
