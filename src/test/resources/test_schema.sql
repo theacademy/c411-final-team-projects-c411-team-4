@@ -90,3 +90,88 @@ CREATE TABLE IF NOT EXISTS flight (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
+
+-- -----------------------------------------------------
+-- Table `user`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user`;
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `email_UNIQUE` UNIQUE (`email`)
+);
+
+-- -----------------------------------------------------
+-- Table `user_flight`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_flight`;
+
+CREATE TABLE IF NOT EXISTS `user_flight` (
+  `user_id` INT NOT NULL,
+  `flight_id` INT NOT NULL,
+  PRIMARY KEY (`user_id`, `flight_id`),
+  CONSTRAINT `fk_user_has_flight_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_user_has_flight_flight1`
+    FOREIGN KEY (`flight_id`)
+    REFERENCES `flight` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+CREATE INDEX `fk_user_has_flight_flight1_idx` ON `user_flight` (`flight_id`);
+CREATE INDEX `fk_user_has_flight_user1_idx` ON `user_flight` (`user_id`);
+
+-- -----------------------------------------------------
+-- Table `user_search_history`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_search_history`;
+
+CREATE TABLE IF NOT EXISTS `user_search_history` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `airline_id` INT DEFAULT NULL,
+  `dep_airport_id` INT DEFAULT NULL,
+  `arr_airport_id` INT DEFAULT NULL,
+  `sole_airport_id` INT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_user_search_history_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_airline`
+    FOREIGN KEY (`airline_id`)
+    REFERENCES `airline` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_dep_airport`
+    FOREIGN KEY (`dep_airport_id`)
+    REFERENCES `airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_arr_airport`
+    FOREIGN KEY (`arr_airport_id`)
+    REFERENCES `airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_sole_airport`
+    FOREIGN KEY (`sole_airport_id`)
+    REFERENCES `airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+CREATE INDEX `fk_user_search_history_user_idx` ON `user_search_history` (`user_id`);
+CREATE INDEX `fk_user_search_history_airline_idx` ON `user_search_history` (`airline_id`);
+CREATE INDEX `fk_user_search_history_dep_airport_idx` ON `user_search_history` (`dep_airport_id`);
+CREATE INDEX `fk_user_search_history_arr_airport_idx` ON `user_search_history` (`arr_airport_id`);
+CREATE INDEX `fk_user_search_history_sole_airport_idx` ON `user_search_history` (`sole_airport_id`);
