@@ -24,8 +24,25 @@ public class Airport {
 
     public Airport() {}
 
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
     public Airport setId(int id) {
         this.id = id;
+        return this;
+    }
+
+    public Airport setName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -34,9 +51,12 @@ public class Airport {
         return this;
     }
 
-    public Airport setName(String name) {
-        this.name = name;
-        return this;
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
     }
 
     public Airport setLatitude(BigDecimal latitude) {
@@ -47,25 +67,5 @@ public class Airport {
     public Airport setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
         return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public BigDecimal getLongitude() {
-        return longitude;
     }
 }

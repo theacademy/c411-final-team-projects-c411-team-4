@@ -16,6 +16,14 @@ public class Airline {
 
     public Airline() {}
 
+    public int getId() { return id; }
+
+    public String getName() { return name; }
+
+    public String getCode() {
+        return code;
+    }
+
     public Airline setId(int id) {
         this.id = id;
         return this;
@@ -31,15 +39,4 @@ public class Airline {
         return this;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getId() {
-        return id;
-    }
 }

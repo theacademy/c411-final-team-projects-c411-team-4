@@ -3,7 +3,6 @@ package com.mthree.flighttracker.test.service;
 import com.mthree.flighttracker.FlighttrackerApplication;
 import com.mthree.flighttracker.dao.AirlineDao;
 import com.mthree.flighttracker.dao.AirportDao;
-import com.mthree.flighttracker.dao.FlightDao;
 import com.mthree.flighttracker.helper.CoordinateHelper;
 import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +62,7 @@ class FlightServiceTest {
 
     @Test
     public void testGetFlightsByDate() {
-        List<Flight> flightsListByDate = flightService.getFlightsByDate(flightService.getFlightById(1).getScheduledArrival());
+        List<Flight> flightsListByDate = flightService.getFlightsByDate(flightService.getFlightById(1).getSchedArrival());
         assertNotNull(flightsListByDate);
         assertEquals(1, flightsListByDate.size());
     }
