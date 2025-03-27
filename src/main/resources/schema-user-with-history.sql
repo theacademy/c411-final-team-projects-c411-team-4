@@ -1,5 +1,3 @@
--- MySQL Workbench Forward Engineering
-
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -151,6 +149,48 @@ CREATE TABLE IF NOT EXISTS `c411_final_project_flights`.`user_flight` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+DROP TABLE IF EXISTS `c411_final_project_flights`.`user_search_history` ;
+
+CREATE TABLE IF NOT EXISTS `c411_final_project_flights`.`user_search_history` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `airline_id` INT NULL DEFAULT NULL,
+  `dep_airport_id` INT NULL DEFAULT NULL,
+  `arr_airport_id` INT NULL DEFAULT NULL,
+  `sole_airport_id` INT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_user_search_history_user_idx` (`user_id` ASC) VISIBLE,
+  INDEX `fk_user_search_history_airline_idx` (`airline_id` ASC) VISIBLE,
+  INDEX `fk_user_search_history_dep_airport_idx` (`dep_airport_id` ASC) VISIBLE,
+  INDEX `fk_user_search_history_arr_airport_idx` (`arr_airport_id` ASC) VISIBLE,
+  INDEX `fk_user_search_history_sole_airport_idx` (`sole_airport_id` ASC) VISIBLE,
+  CONSTRAINT `fk_user_search_history_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `c411_final_project_flights`.`user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_airline`
+    FOREIGN KEY (`airline_id`)
+    REFERENCES `c411_final_project_flights`.`airline` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_dep_airport`
+    FOREIGN KEY (`dep_airport_id`)
+    REFERENCES `c411_final_project_flights`.`airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_arr_airport`
+    FOREIGN KEY (`arr_airport_id`)
+    REFERENCES `c411_final_project_flights`.`airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_search_history_sole_airport`
+    FOREIGN KEY (`sole_airport_id`)
+    REFERENCES `c411_final_project_flights`.`airport` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

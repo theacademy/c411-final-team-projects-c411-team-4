@@ -2,14 +2,20 @@ package com.mthree.flighttracker.controller;
 
 import com.mthree.flighttracker.dao.UserDao;
 import com.mthree.flighttracker.model.User;
+import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
+    @Autowired
+    UserHistoryService userHistoryService;
     @Autowired
     private UserDao userDao;
 
@@ -70,6 +76,13 @@ public class UserController {
         public void setCurrentPassword(String currentPassword) { this.currentPassword = currentPassword; }
         public String getNewPassword() { return newPassword; }
         public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/history")
+    public ResponseEntity<?> getSearchHistory() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(userHistoryService.getHistoryByUsername(authentication.getName()));
     }
 
     @PostMapping("/register")
