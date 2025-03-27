@@ -81,24 +81,7 @@ import { onMount } from 'svelte';
   
   <main class="flex flex-col min-h-screen bg-gray-50 py-10">
   
-    <h2 class="text-2xl font-bold text-gray-800 mt-10 text-sky-600">
-      Flights Available
-    </h2>
-  
-    <ul>
-      {#each flights as flight}
-        <li>
-          <div class="flex justify-between text-sm text-gray-700"></div>
-          <span> ✈️ {flight.airline?.name} — {flight.id}</span>
-          <span>{flight.depAirport?.code} ➡ {flight.arrAirport?.code} </span>
-          <p>
-            <strong>Departure:</strong> {flight.schedDeparture}
-            <span class="mx-2">|</span>
-            <strong>Arrival:</strong> {flight.estArrival}
-          </p>
-        </li>
-      {/each}
-    </ul>
+    
 
     <div class="bg-white p-4 rounded shadow flex flex-wrap justify-center gap-4 border border-gray-200 max-w-4xl mx-auto mt-6">
         <input
@@ -123,7 +106,31 @@ import { onMount } from 'svelte';
           🔍 Search Flights
         </button>
       </div>
- 
+
+      <div class="max-w-3xl w-full mx-auto text-center mt-10">
+        <h2 class="text-2xl font-bold text-gray-800 text-sky-600">
+          Flights Available
+        </h2>
+      </div>
+  
+    <ul class="max-w-3xl w-full mx-auto space-y-4 mt-6">
+        {#each flights as flight}
+          <li class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm">
+            <div class="text-lg font-semibold text-sky-700">
+              ✈️ {flight.airline?.name} — {flight.number}
+            </div>
+            <div class="text-sm text-gray-700 mb-1">
+              {flight.depAirport?.code} ➡ {flight.arrAirport?.code}
+            </div>
+            <div class="text-sm text-gray-600">
+              <strong>Departure:</strong> {flight.schedDeparture}
+              <span class="mx-2">|</span>
+              <strong>Arrival:</strong> {flight.estArrival}
+            </div>
+          </li>
+        {/each}
+      </ul>
+      
 
 </main>
   
