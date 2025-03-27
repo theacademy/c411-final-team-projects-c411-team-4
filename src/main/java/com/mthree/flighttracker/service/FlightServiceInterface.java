@@ -1,14 +1,9 @@
 package com.mthree.flighttracker.service;
 
-import com.mthree.flighttracker.model.Airline;
-import com.mthree.flighttracker.model.Airport;
-import com.mthree.flighttracker.model.Flight;
-import com.mthree.flighttracker.model.FlightStatus;
+import com.mthree.flighttracker.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -82,4 +77,20 @@ public interface FlightServiceInterface {
      * @return latest flight, if it exists, otherwise null
      */
     Flight getLatestFlightByNumber(short number, Airline airline);
+
+    /**
+     * Updates an existing flight in the system
+     *
+     * @param flight The flight object with updated information
+     * @return The updated flight
+     */
+    Flight updateFlight(Flight flight);
+
+    /**
+     * Removes a flight from the system
+     *
+     * @param flight The flight to remove
+     */
+    void deleteFlight(Flight flight);
+
 }

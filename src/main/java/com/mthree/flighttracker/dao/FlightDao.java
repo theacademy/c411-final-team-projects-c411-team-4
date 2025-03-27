@@ -76,7 +76,6 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
     // Flight status search function
     Page<Flight> getFlightsByStatus(FlightStatus status, Pageable pageable);
 
-
     // Airline & Airport Search functions
     @Query("SELECT f FROM Flight f WHERE (f.arrAirport = ?1 OR f.depAirport = ?1) AND f.airline = ?2")
     Page<Flight> getFlightsByAirportAndAirline(Airport airport, Airline airline, Pageable pageable);
