@@ -77,4 +77,20 @@ public interface FlightServiceInterface {
      * @return latest flight, if it exists, otherwise null
      */
     Flight getLatestFlightByNumber(short number, Airline airline);
+
+    /**
+     * Updates an existing flight in the system
+     *
+     * @param flight The flight object with updated information
+     * @return The updated flight
+     */
+    Flight updateFlight(Flight flight);
+
+    /**
+     * Removes a flight from the system
+     *
+     * @param flight The flight to remove
+     */
+    void deleteFlight(Flight flight);
+
 }

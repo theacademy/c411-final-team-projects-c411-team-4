@@ -204,4 +204,14 @@ public class FlightServiceImpl implements FlightServiceInterface {
     public Page<Airport> findAllAirports(Pageable pageable) {
         return airportDao.findAll(pageable);
     }
+
+    @Override
+    public Flight updateFlight(Flight flight) {
+        return flightDao.save(flight);
+    }
+
+    @Override
+    public void deleteFlight(Flight flight) {
+        flightDao.delete(flight);
+    }
 }
