@@ -1,10 +1,9 @@
 package com.mthree.flighttracker.controller;
 
 
-import com.mthree.flighttracker.FlighttrackerApplication;
+import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.Airport;
-import com.mthree.flighttracker.model.FlightStatus;
 import com.mthree.flighttracker.service.FlightServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -143,7 +141,6 @@ public class FlightController {
    }
     */
 
-
     @GetMapping("/flight/{flightNumber}")
     public ResponseEntity<Page<Flight>> getFlightByNumber(
             Pageable pageable,
@@ -158,5 +155,30 @@ public class FlightController {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/flight/iata/{flightNumber}")
+    public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String flightNumber) {
+        if(flightNumber.length() != 6) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        final String airlineCode = flightNumber.substring(0, 2);
+
+        final Airline airline = flightService.getAirlineByCode(airlineCode);
+
+        if(airline == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        final short number = Short.parseShort(flightNumber.substring(2));
+
+        final Flight flight = flightService.getLatestFlightByNumber(number, airline);
+
+        if(flight == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(flight);
     }
 }

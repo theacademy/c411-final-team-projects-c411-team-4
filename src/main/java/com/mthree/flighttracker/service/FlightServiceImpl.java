@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -128,6 +127,16 @@ public class FlightServiceImpl implements FlightServiceInterface {
         }
 
         return flight;
+    }
+
+    @Override
+    public Airline getAirlineByCode(String code) {
+        return airlineDao.getAirlineByCode(code);
+    }
+
+    @Override
+    public Flight getLatestFlightByNumber(short number, Airline airline) {
+        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
     }
 
     public Page<Flight> findByNumber(short number, Pageable pageable) {
