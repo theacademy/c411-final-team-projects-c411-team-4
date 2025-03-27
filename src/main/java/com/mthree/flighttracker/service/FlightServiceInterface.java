@@ -65,4 +65,21 @@ public interface FlightServiceInterface {
      * @return The flight if found, otherwise null
      */
     Flight getFlightByNumber(short number, Airline airline);
+
+    /**
+     * Gets an airline by its code
+     *
+     * @param code Airline Code
+     * @return The airline if found, otherwise null
+     */
+    Airline getAirlineByCode(String code);
+
+    /**
+     * Get the latest flight by IATA Flight Number.
+     * Flight numbers can be historically reused, even across airlines. This will get the latest.
+     * @param number flight number
+     * @param airline airline for the flight
+     * @return latest flight, if it exists, otherwise null
+     */
+    Flight getLatestFlightByNumber(short number, Airline airline);
 }
