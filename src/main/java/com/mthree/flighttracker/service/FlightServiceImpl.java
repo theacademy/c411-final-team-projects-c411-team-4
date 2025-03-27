@@ -130,6 +130,10 @@ public class FlightServiceImpl implements FlightServiceInterface {
         return flight;
     }
 
+    public Page<Flight> findByNumber(short number, Pageable pageable) {
+        return flightDao.findByNumber(number, pageable);
+    }
+
     public Optional<Flight> findByNumber (int number) {
         return flightDao.findByNumber(number);
     }
