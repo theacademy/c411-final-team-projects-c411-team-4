@@ -4,12 +4,16 @@ import com.mthree.flighttracker.dao.UserDao;
 import com.mthree.flighttracker.model.User;
 import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/user")
@@ -24,20 +28,6 @@ public class UserController {
 
     @Autowired
     private JwtEncoder jwtEncoder;
-
-    // Response class for authentication tokens
-    private static class AuthResponse {
-        private String token;
-        private String username;
-
-        public AuthResponse(String token, String username) {
-            this.token = token;
-            this.username = username;
-        }
-
-        public String getToken() { return token; }
-        public String getUsername() { return username; }
-    }
 
     // Request class for user registration
     public static class UserRegistrationRequest {
@@ -102,14 +92,36 @@ public class UserController {
 
             // Generate token and return response
             String token = jwtEncoder.generateToken(user.getUsername());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new AuthResponse(token, user.getUsername()));
-
+            ResponseCookie jwtCookie = ResponseCookie
+                    .from("flight_token", token)
+                    .maxAge(Duration.ofDays(7))
+                    .httpOnly(true)
+                    .path("/")
+                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
+        ResponseCookie removeTokenCookie = ResponseCookie
+                .from("flight_token", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.SET_COOKIE, removeTokenCookie.toString())
+                .build();
     }
 
     @PostMapping("/login")
@@ -123,8 +135,16 @@ public class UserController {
 
             // Generate token and return response
             String token = jwtEncoder.generateToken(user.getUsername());
-            return ResponseEntity.ok(new AuthResponse(token, user.getUsername()));
-
+            ResponseCookie jwtCookie = ResponseCookie
+                    .from("flight_token", token)
+                    .httpOnly(true)
+                    .maxAge(Duration.ofDays(7))
+                    .path("/")
+                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
@@ -132,31 +152,19 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserProfile(
-            @RequestHeader(value = "Authorization", required = true) String token) {
-        try {
-            // Validate token
-            String username = jwtEncoder.validateToken(token);
-            if (username == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-            }
-
-            // Get user profile
-            User user = userDao.findByUsername(username);
-            if (user == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            // Don't send password in response
-            user.setPassword(null);
-            return ResponseEntity.ok(user);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
+    public ResponseEntity<?> getUserProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userDao.findByUsername(auth.getName());
+        if (user == null) {
+            // this should be a server error if we auth a jwt
+            // but the user for the jwt doesnt exist
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        // Don't send password in response
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/profile")
