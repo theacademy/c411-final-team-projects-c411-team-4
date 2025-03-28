@@ -32,7 +32,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
             history.setUser(userDao.findByUsername(history.getUser().getUsername()));
         }
         if(history.getAirline() != null && history.getAirline().getId() == 0) {
-            history.setAirline(airlineDao.getAirlineByCode(history.getAirline().getCode()));
+            history.setAirline(airlineDao.getAirlineByName(history.getAirline().getName()));
         }
         if(history.getArrAirport() != null && history.getArrAirport().getId() == 0) {
             history.setArrAirport(airportDao.getAirportByCode(history.getArrAirport().getCode()));
