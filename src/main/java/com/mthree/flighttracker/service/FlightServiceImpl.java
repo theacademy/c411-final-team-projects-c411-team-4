@@ -5,7 +5,10 @@ import com.mthree.flighttracker.helper.CoordinateHelper;
 import com.mthree.flighttracker.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -196,8 +199,9 @@ public class FlightServiceImpl implements FlightServiceInterface {
     }
 
     @Override
-    public Flight getLatestFlightByNumber(short number, Airline airline) {
-        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
+    public Page<Flight> getLatestFlightByNumber(short number, Airline airline, Pageable pageable) {
+        pageable = PageRequest.of(0, 1, Sort.by(Sort.Order.desc("scheduledDeparture")));
+        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline, pageable);
     }
 
     public Page<Flight> findByNumber(short number, Pageable pageable) {
