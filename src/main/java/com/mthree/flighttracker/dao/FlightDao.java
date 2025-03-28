@@ -85,4 +85,6 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
 
     @Query("SELECT f FROM Flight f WHERE f.depAirport = ?1 AND f.airline = ?2")
     Page<Flight> getFlightsByDepAirportAndAirline(Airport airport, Airline airline, Pageable pageable);
+
+    Page<Flight> getFlightsByDepAirportAndArrAirportAndAirline(Airport depAirport, Airport arrAirport, Airline airline, Pageable pageable);
 }

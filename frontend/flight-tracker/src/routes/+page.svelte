@@ -64,16 +64,21 @@
             return;
         }
 
-        const isOnlyAirline = airline && !depAirport && !arrAirport;
-
-        if (isOnlyAirline) {
+        if (airline != undefined && airline != null && airline.trim() != "") {
             params.append("airline", airline);
-        } else if (depAirport && arrAirport) {
+        }
+        if (
+            depAirport != undefined &&
+            depAirport != null &&
+            depAirport.trim() != ""
+        ) {
             params.append("departing", depAirport);
-            params.append("arrival", arrAirport);
-        } else if (depAirport) {
-            params.append("airport", depAirport);
-        } else if (arrAirport) {
+        }
+        if (
+            arrAirport != undefined &&
+            arrAirport != null &&
+            arrAirport.trim() != ""
+        ) {
             params.append("arrival", arrAirport);
         }
 
@@ -83,7 +88,7 @@
         const url = `http://localhost:8080/api/search?${params.toString()}`;
 
         try {
-            const response = await fetch(url, { credentials: 'include' });
+            const response = await fetch(url, { credentials: "include" });
             const data: { content: Flight[] } = await response.json();
             flights = data.content;
         } catch (err) {
@@ -187,4 +192,3 @@
         {/each}
     </ul>
 </main>
-

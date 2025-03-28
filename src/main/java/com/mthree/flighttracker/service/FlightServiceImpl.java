@@ -138,10 +138,19 @@ public class FlightServiceImpl implements FlightServiceInterface {
 
 
        if (airline != null) {
+           if(arrival != null && departing != null) {
+               Airline airlineOne = airlineDao.getAirlineByName(airline);
+               Airport arrAirport = airportDao.getAirportByCode(arrival);
+               Airport depAirport = airportDao.getAirportByCode(departing);
+
+               return flightDao.getFlightsByDepAirportAndArrAirportAndAirline(depAirport, arrAirport, airlineOne, pageable);
+           }
+
            if (airport == null && arrival == null && departing == null) {
                Airline airline1 = airlineDao.getAirlineByName(airline);
                return flightDao.getFlightsByAirline(airline1, pageable);
            }
+
            if (airport != null && (arrival == null && departing == null)) {
                Airport airport1 = airportDao.getAirportByCode(airport);
                Airline airline1 = airlineDao.getAirlineByName(airline);
