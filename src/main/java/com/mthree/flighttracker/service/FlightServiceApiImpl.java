@@ -11,6 +11,7 @@ import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,9 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
 
     @Autowired
     FlightServiceApiImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
-        this.aviationStackApi = new AviationStackApi("");
+        final Dotenv dotenv = Dotenv.load();
+        final String aviationStackApiToken = dotenv.get("AVIATION_STACK_API_TOKEN");
+        this.aviationStackApi = new AviationStackApi(aviationStackApiToken);
         this.flightNumberLastApiCall = new HashMap<>();
 
         this.flightStatusDao = flightStatusDao;
