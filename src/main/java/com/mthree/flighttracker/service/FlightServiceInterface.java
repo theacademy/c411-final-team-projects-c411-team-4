@@ -76,7 +76,7 @@ public interface FlightServiceInterface {
      * @param airline airline for the flight
      * @return latest flight, if it exists, otherwise null
      */
-    Flight getLatestFlightByNumber(short number, Airline airline);
+    Page<Flight> getLatestFlightByNumber(short number, Airline airline, Pageable pageable);
 
     /**
      * Updates an existing flight in the system

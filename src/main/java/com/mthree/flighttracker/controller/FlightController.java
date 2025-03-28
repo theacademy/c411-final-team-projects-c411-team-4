@@ -149,14 +149,16 @@ public class FlightController {
     }
 
     @GetMapping("/flight/{airlineCode}/{flightNumber}")
-    public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String airlineCode, @PathVariable short flightNumber) {
+    public ResponseEntity<Page<Flight>> getFlightByIataNumber(@PathVariable String airlineCode,
+                                                              @PathVariable short flightNumber,
+                                                            Pageable pageable) {
         final Airline airline = flightService.getAirlineByCode(airlineCode);
 
         if(airline == null) {
             return ResponseEntity.notFound().build();
         }
 
-        final Flight flight = flightService.getLatestFlightByNumber(flightNumber, airline);
+        final Page<Flight> flight = flightService.getLatestFlightByNumber(flightNumber, airline, pageable);
 
         if(flight == null) {
             return ResponseEntity.notFound().build();
