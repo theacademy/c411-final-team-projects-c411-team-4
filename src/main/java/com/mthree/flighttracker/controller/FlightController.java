@@ -2,6 +2,7 @@ package com.mthree.flighttracker.controller;
 
 
 import com.mthree.flighttracker.model.*;
+import com.mthree.flighttracker.service.FlightServiceApiImpl;
 import com.mthree.flighttracker.service.FlightServiceImpl;
 import com.mthree.flighttracker.service.FlightServiceInterface;
 import com.mthree.flighttracker.service.UserHistoryService;
@@ -25,7 +26,7 @@ import java.util.HashMap;
 @RequestMapping("/api")
 public class FlightController {
     @Autowired
-    FlightServiceInterface flightService;
+    FlightServiceApiImpl flightService;
     @Autowired
     UserHistoryService userHistoryService;
 
