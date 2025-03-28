@@ -176,7 +176,7 @@
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm"
             >
                 <div class="text-lg font-semibold text-sky-700">
-                    ✈️ {flight.airline?.name} — {flight.number}
+                    ✈️ {flight.airline?.name} — {`#${flight.airline?.code}${flight.number}`}
                 </div>
                 <div class="text-sm text-gray-700 mb-1">
                     {flight.depAirport?.code} ➡ {flight.arrAirport?.code}
