@@ -38,15 +38,11 @@ import { onMount } from 'svelte';
     let airline ="";
     let depAirport ="";
     let arrAirport ="";
-    loadAllFlights();
     let flights: Flight[] = [];
   
     onMount(async () => {
       loadAllFlights();
     });
-    onMount(() => {
-  loadAllFlights();
-});
 
 async function loadAllFlights() {
   try {
@@ -64,8 +60,8 @@ async function loadAllFlights() {
     if (!airline && !depAirport && !arrAirport) {
     alert('Please enter at least one search filter.');
      return;
-    }   
-    
+    }
+
     const isOnlyAirline = airline && !depAirport && !arrAirport;
 
     if (isOnlyAirline) {
@@ -94,8 +90,31 @@ async function loadAllFlights() {
     }
     }
 
+    function formatDateTime(isoString) {
+      if (!isoString) return "";
 
+      try {
+        const date = new Date(isoString);
 
+        if (isNaN(date.getTime())) {
+          return "Invalid Date";
+        }
+
+        const options = {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true
+        };
+
+        return date.toLocaleString('en-US', options);
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        return "";
+      }
+    }
 </script>
   
   <div class="bg-sky-700 py-20">
@@ -144,7 +163,7 @@ async function loadAllFlights() {
             No flights found.
           </li>
         {/if}
-        
+
         {#each flights as flight}
           <li class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm">
             <div class="text-lg font-semibold text-sky-700">
@@ -154,9 +173,9 @@ async function loadAllFlights() {
               {flight.depAirport?.code} ➡ {flight.arrAirport?.code}
             </div>
             <div class="text-sm text-gray-600">
-              <strong>Departure:</strong> {flight.schedDeparture}
+              <strong>Departure:</strong> {formatDateTime(flight.schedDeparture)}
               <span class="mx-2">|</span>
-              <strong>Arrival:</strong> {flight.estArrival}
+              <strong>Arrival:</strong> {formatDateTime(flight.estArrival)}
             </div>
           </li>
         {/each}
