@@ -43,10 +43,30 @@
      * Data is currently mocked.
      */
     function grabPlanePositions() {
-        intervalId = setInterval(() => {
-            let markers = planeNumberToMarker.values();
-            for (const marker of markers) {
-                updatePlanePosition(marker);
+        intervalId = setInterval(async () => {
+            let iataNumbers = [...planeNumberToMarker.keys()];
+
+            for (const iataNumber of iataNumbers) {
+                const marker = planeNumberToMarker.get(iataNumber);
+                const airlineCode = iataNumber.substring(0, 2);
+                const flightNumber = iataNumber.substring(2);
+                const planeNoLongerInAir = await updatePlanePosition(
+                    airlineCode,
+                    flightNumber,
+                    marker,
+                );
+
+                if (planeNoLongerInAir) {
+                    // remove marker, then remove the plane from map and alert the user through window alert
+                    marker.remove();
+                    planeNumberToMarker.delete(iataNumber);
+                    window.alert(
+                        `Flight #${iataNumber} is no longer in the air, and cannot be tracked.`,
+                    );
+                    if (activePopupMarker == marker) {
+                        activePopupMarker = null;
+                    }
+                }
 
                 if (activePopupMarker === marker && map) {
                     map.panTo(marker.getLatLng());
@@ -73,7 +93,49 @@
         return (bearing + 360) % 360;
     }
 
-    function updatePlanePosition(marker: L.Marker) {
+    // returns true if the plane should be removed
+    async function updatePlanePosition(
+        airlineCode: String,
+        flightNumber: String,
+        marker: L.Marker,
+    ): Promise<boolean> {
+        let response;
+        try {
+            response = await fetch(
+                `http://localhost:8080/api/flight/${airlineCode}/${flightNumber}`,
+                { credentials: "include" },
+            );
+
+            if (!response.ok) {
+                return true;
+            }
+        } catch (e) {
+            console.error(`Error fetching flight: ${e}`);
+            return true;
+        }
+
+        const apiFlightData: Flight = await response.json();
+
+        if (apiFlightData.latitude == null || apiFlightData.longitude == null) {
+            return true;
+        }
+
+        const latLngObj = marker.getLatLng();
+        const previousPos = [latLngObj.lat, latLngObj.lng];
+
+        const newPos = [apiFlightData.latitude, apiFlightData.longitude];
+        const bearing = calculateBearing(previousPos, newPos);
+
+        latLngObj.lat = newPos[0];
+        latLngObj.lng = newPos[1];
+
+        marker.setIcon(createPlaneIcon(bearing));
+        marker.setLatLng(latLngObj);
+
+        return false;
+    }
+
+    function updatePlanePositionMock(marker: L.Marker) {
         const latLngObj = marker.getLatLng();
         const previousPos = [latLngObj.lat, latLngObj.lng];
         const addToCurrent = calculateNewTargets();

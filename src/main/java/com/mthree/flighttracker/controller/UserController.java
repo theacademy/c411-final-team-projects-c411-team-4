@@ -57,15 +57,11 @@ public class UserController {
     // Request class for profile updates
     public static class UserProfileUpdateRequest {
         private String email;
-        private String currentPassword;
-        private String newPassword;
+        private String password;
 
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
-        public String getCurrentPassword() { return currentPassword; }
-        public void setCurrentPassword(String currentPassword) { this.currentPassword = currentPassword; }
-        public String getNewPassword() { return newPassword; }
-        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+        public String getPassword() { return password; }
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -167,40 +163,26 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
-    public ResponseEntity<?> updateUserProfile(
-            @RequestHeader(value = "Authorization", required = true) String token,
-            @RequestBody(required = true) UserProfileUpdateRequest request) {
+    public ResponseEntity<?> updateUserProfile(@RequestBody(required = true) UserProfileUpdateRequest request) {
         try {
-            // Validate token
-            String username = jwtEncoder.validateToken(token);
-            if (username == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-            }
-
-            // Get user
-            User user = userDao.findByUsername(username);
+            final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User user = userDao.findByUsername(auth.getName());
             if (user == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Update email if provided
             if (request.getEmail() != null) {
                 user.setEmail(request.getEmail());
             }
 
-            // Update password if provided
-            if (request.getCurrentPassword() != null && request.getNewPassword() != null) {
-                if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid current password");
-                }
-                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            if (request.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
             }
 
-            // Save updates
             userDao.save(user);
 
-            // Don't send password in response
             user.setPassword(null);
             return ResponseEntity.ok(user);
 

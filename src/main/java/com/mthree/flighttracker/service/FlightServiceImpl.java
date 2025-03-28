@@ -6,13 +6,11 @@ import com.mthree.flighttracker.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service
 public class FlightServiceImpl implements FlightServiceInterface {
     private FlightDao flightDao;
     private FlightStatusDao flightStatusDao;
@@ -20,7 +18,7 @@ public class FlightServiceImpl implements FlightServiceInterface {
     private AirportDao airportDao;
 
     @Autowired
-    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
+    public FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
         this.flightStatusDao = flightStatusDao;
         this.flightDao = flightDao;
         this.airlineDao = airlineDao;
@@ -138,10 +136,19 @@ public class FlightServiceImpl implements FlightServiceInterface {
 
 
        if (airline != null) {
+           if(arrival != null && departing != null) {
+               Airline airlineOne = airlineDao.getAirlineByName(airline);
+               Airport arrAirport = airportDao.getAirportByCode(arrival);
+               Airport depAirport = airportDao.getAirportByCode(departing);
+
+               return flightDao.getFlightsByDepAirportAndArrAirportAndAirline(depAirport, arrAirport, airlineOne, pageable);
+           }
+
            if (airport == null && arrival == null && departing == null) {
                Airline airline1 = airlineDao.getAirlineByName(airline);
                return flightDao.getFlightsByAirline(airline1, pageable);
            }
+
            if (airport != null && (arrival == null && departing == null)) {
                Airport airport1 = airportDao.getAirportByCode(airport);
                Airline airline1 = airlineDao.getAirlineByName(airline);

@@ -2,12 +2,14 @@ package com.mthree.flighttracker.controller;
 
 
 import com.mthree.flighttracker.model.*;
-import com.mthree.flighttracker.service.FlightServiceImpl;
+import com.mthree.flighttracker.service.FlightServiceInterface;
 import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +20,9 @@ import org.springframework.http.HttpStatus;
 @RequestMapping("/api")
 public class FlightController {
     @Autowired
-    FlightServiceImpl flightService;
+    @Qualifier("flightServiceApi")
+    FlightServiceInterface flightService;
+
     @Autowired
     UserHistoryService userHistoryService;
 
@@ -38,7 +42,6 @@ public class FlightController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
    /*
    // TODO Unsure what to do since we don't have countries in data
@@ -114,7 +117,7 @@ public class FlightController {
         history.setUser(new User().setUsername(auth.getName()));
 
         if(airline != null) {
-            history.setAirline(new Airline().setCode(airline));
+            history.setAirline(new Airline().setName(airline));
         }
 
         if(departing != null) {
@@ -148,6 +151,7 @@ public class FlightController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/flight/{airlineCode}/{flightNumber}")
     public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String airlineCode, @PathVariable short flightNumber) {
         final Airline airline = flightService.getAirlineByCode(airlineCode);
@@ -165,4 +169,3 @@ public class FlightController {
         return ResponseEntity.ok(flight);
     }
 }
-
