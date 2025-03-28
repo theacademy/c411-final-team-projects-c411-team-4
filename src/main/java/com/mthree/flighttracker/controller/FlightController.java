@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -176,6 +176,7 @@ public class FlightController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/flight/{airlineCode}/{flightNumber}")
     public ResponseEntity<Flight> getFlightByIataNumber(@PathVariable String airlineCode, @PathVariable short flightNumber) {
         final Airline airline = flightService.getAirlineByCode(airlineCode);
