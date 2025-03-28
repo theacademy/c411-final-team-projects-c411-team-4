@@ -111,7 +111,7 @@
             }
         } catch (e) {
             console.error(`Error fetching flight: ${e}`);
-            throw e;
+            return true;
         }
 
         const apiFlightData: Flight = await response.json();
