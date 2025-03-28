@@ -71,6 +71,31 @@ import { onMount } from 'svelte';
     }
     }
 
+    function formatDateTime(isoString) {
+      if (!isoString) return "";
+
+      try {
+        const date = new Date(isoString);
+
+        if (isNaN(date.getTime())) {
+          return "Invalid Date";
+        }
+
+        const options = {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true
+        };
+
+        return date.toLocaleString('en-US', options);
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        return "";
+      }
+    }
 </script>
   
   <div class="bg-sky-700 py-20">
@@ -123,9 +148,9 @@ import { onMount } from 'svelte';
               {flight.depAirport?.code} ➡ {flight.arrAirport?.code}
             </div>
             <div class="text-sm text-gray-600">
-              <strong>Departure:</strong> {flight.schedDeparture}
+              <strong>Departure:</strong> {formatDateTime(flight.schedDeparture)}
               <span class="mx-2">|</span>
-              <strong>Arrival:</strong> {flight.estArrival}
+              <strong>Arrival:</strong> {formatDateTime(flight.estArrival)}
             </div>
           </li>
         {/each}
