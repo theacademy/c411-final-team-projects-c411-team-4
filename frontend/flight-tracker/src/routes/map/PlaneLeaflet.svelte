@@ -106,7 +106,7 @@
             );
 
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                return true;
             }
         } catch (e) {
             console.error(`Error fetching flight: ${e}`);
