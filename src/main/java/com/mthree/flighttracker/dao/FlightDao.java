@@ -87,4 +87,6 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
     Page<Flight> getFlightsByDepAirportAndAirline(Airport airport, Airline airline, Pageable pageable);
 
     Page<Flight> getFlightsByDepAirportAndArrAirportAndAirline(Airport depAirport, Airport arrAirport, Airline airline, Pageable pageable);
+
+    Page<Flight> getFlightsByDepAirportAndArrAirport(Airport depAirport, Airport arrAirport, Pageable pageable);
 }

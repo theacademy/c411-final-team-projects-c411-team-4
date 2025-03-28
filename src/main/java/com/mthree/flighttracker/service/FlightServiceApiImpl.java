@@ -138,6 +138,11 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
 
     public Page<?> searchFlights(String airline, String departing, String arrival, String airport, Pageable pageable) {
         if (airline == null) {
+            if(departing != null && arrival != null) {
+                final Airport depAirport = airportDao.getAirportByCode(departing);
+                final Airport arrAirport = airportDao.getAirportByCode(arrival);
+                return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+            }
             if (airport != null && (arrival == null && departing == null)) {
                 Airport airport1 = airportDao.getAirportByCode(airport);
                 return flightDao.getFlightsByAirport(airport1, pageable);
