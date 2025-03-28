@@ -6,5 +6,3 @@
 
 <Navbar />
 {@render children()}
-
-

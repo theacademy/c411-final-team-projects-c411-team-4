@@ -1,14 +1,9 @@
 package com.mthree.flighttracker.service;
 
-import com.mthree.flighttracker.model.Airline;
-import com.mthree.flighttracker.model.Airport;
-import com.mthree.flighttracker.model.Flight;
-import com.mthree.flighttracker.model.FlightStatus;
+import com.mthree.flighttracker.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,6 +15,7 @@ public interface FlightServiceInterface {
      */
     List<Flight> getAllFlights();
 
+
     /**
      * Gets flights by airline
      *
@@ -27,6 +23,7 @@ public interface FlightServiceInterface {
      * @return List of flights operated by the specified airline
      */
     List<Flight> getFlightsByAirline(Airline airline);
+
 
     /**
      * Gets flights by date
@@ -36,13 +33,6 @@ public interface FlightServiceInterface {
      */
     List<Flight> getFlightsByDate(LocalDateTime date);
 
-    /**
-     * Gets flights by airport (either departure or arrival)
-     *
-     * @param airport The airport
-     * @return List of flights departing from or arriving at the specified airport
-     */
-    List<Flight> getFlightsByAirport(Airport airport);
 
     /**
      * Gets flights by status
@@ -52,6 +42,7 @@ public interface FlightServiceInterface {
     List<Flight> getFlightsByStatus(FlightStatus status);
     Page<Flight> getFlightsByStatus(String status, Pageable pageable);
 
+
     /**
      * Gets a specific flight by its ID
      *
@@ -59,6 +50,7 @@ public interface FlightServiceInterface {
      * @return The flight if found, otherwise null
      */
     Flight getFlightById(int id);
+
 
     /**
      * Gets a flight by its number and airline
@@ -85,4 +77,20 @@ public interface FlightServiceInterface {
      * @return latest flight, if it exists, otherwise null
      */
     Flight getLatestFlightByNumber(short number, Airline airline);
+
+    /**
+     * Updates an existing flight in the system
+     *
+     * @param flight The flight object with updated information
+     * @return The updated flight
+     */
+    Flight updateFlight(Flight flight);
+
+    /**
+     * Removes a flight from the system
+     *
+     * @param flight The flight to remove
+     */
+    void deleteFlight(Flight flight);
+
 }
