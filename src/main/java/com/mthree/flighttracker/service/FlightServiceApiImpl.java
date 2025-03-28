@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Service
+@Service("flightServiceApi")
 public class FlightServiceApiImpl implements FlightServiceInterface {
     private final AviationStackApi aviationStackApi;
     private final Map<String, Long> flightNumberLastApiCall;
