@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Service
+@Service("flightServiceApi")
 public class FlightServiceApiImpl implements FlightServiceInterface {
     private final AviationStackApi aviationStackApi;
     private final Map<String, Long> flightNumberLastApiCall;
@@ -35,8 +35,13 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
 
     @Autowired
     FlightServiceApiImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
-        final Dotenv dotenv = Dotenv.load();
-        final String aviationStackApiToken = dotenv.get("AVIATION_STACK_API_TOKEN");
+        Dotenv dotenv;
+        try {
+            dotenv = Dotenv.load();
+        } catch (Exception e) {
+            dotenv = null;
+        }
+        String aviationStackApiToken = dotenv == null ? "" : dotenv.get("AVIATION_STACK_API_TOKEN");
         this.aviationStackApi = new AviationStackApi(aviationStackApiToken);
         this.flightNumberLastApiCall = new HashMap<>();
 

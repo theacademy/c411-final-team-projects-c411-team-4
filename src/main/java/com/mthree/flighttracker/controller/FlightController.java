@@ -2,11 +2,11 @@ package com.mthree.flighttracker.controller;
 
 
 import com.mthree.flighttracker.model.*;
-import com.mthree.flighttracker.service.FlightServiceImpl;
+import com.mthree.flighttracker.service.FlightServiceApiImpl;
 import com.mthree.flighttracker.service.FlightServiceInterface;
 import com.mthree.flighttracker.service.UserHistoryService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +17,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.HashMap;
-
 @RestController
 @RequestMapping("/api")
 public class FlightController {
     @Autowired
+    @Qualifier("flightServiceApi")
     FlightServiceInterface flightService;
+
     @Autowired
     UserHistoryService userHistoryService;
 
