@@ -119,7 +119,7 @@ public class FlightController {
         history.setUser(new User().setUsername(auth.getName()));
 
         if(airline != null) {
-            history.setAirline(new Airline().setCode(airline));
+            history.setAirline(new Airline().setName(airline));
         }
 
         if(departing != null) {
