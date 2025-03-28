@@ -41,20 +41,39 @@ import { onMount } from 'svelte';
     let flights: Flight[] = [];
   
     onMount(async () => {
-      try {
-        const response = await fetch('http://localhost:8080/api/flights?page=0&size=10');
-        const data: { content: Flight[] } = await response.json();
-        flights = data.content;
-        flights = data.content; // THIS is key: `data.content`
-      } catch (err) {
-        console.error('Fetch error:', err);
-      }
+      loadAllFlights();
     });
 
+async function loadAllFlights() {
+  try {
+    const response = await fetch('http://localhost:8080/api/flights?page=0&size=10');
+    const data: { content: Flight[] } = await response.json();
+    flights = data.content;
+  } catch (err) {
+    console.error('Fetch error:', err);
+  }
+}
     // search flights, from and to
     async function searchFlights() {
     const params = new URLSearchParams();
 
+    if (!airline && !depAirport && !arrAirport) {
+    alert('Please enter at least one search filter.');
+     return;
+    }
+
+    const isOnlyAirline = airline && !depAirport && !arrAirport;
+
+    if (isOnlyAirline) {
+    params.append('airline', airline);
+    } else if (depAirport && arrAirport) {
+    params.append('departing', depAirport);
+    params.append('arrival', arrAirport);
+    } else if (depAirport) {
+     params.append('airport', depAirport);
+    } else if (arrAirport) {
+     params.append('arrival', arrAirport);
+    }
 
 
     params.append('page', '0');
@@ -139,6 +158,12 @@ import { onMount } from 'svelte';
       </div>
   
     <ul class="max-w-3xl w-full mx-auto space-y-4 mt-6">
+        {#if flights.length === 0}
+          <li class="bg-white border border-gray-200 rounded-lg p-4 text-center shadow-sm">
+            No flights found.
+          </li>
+        {/if}
+
         {#each flights as flight}
           <li class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm">
             <div class="text-lg font-semibold text-sky-700">

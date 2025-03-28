@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 
     let user: User | undefined;
@@ -33,13 +34,35 @@
     </div>
 
     <ul class="flex space-x-4">
-        <li><a href="/">Home</a></li>
-        <li><a href="/about">About</a></li>
+        <li>
+            <a
+                href="/"
+                on:click={() => (window.location.href = "/")}
+                class="hover:cusor-pointer hover:underline">Home</a
+            >
+        </li>
+        <li>
+            <a href="/about" class="hover:cusor-pointer hover:underline"
+                >About</a
+            >
+        </li>
         {#if user}
-            <li><a href="/map">Map</a></li>
-            <li><a href="/profile">Profile</a></li>
+            <li>
+                <a href="/map" class="hover:cusor-pointer hover:underline"
+                    >Map</a
+                >
+            </li>
+            <li>
+                <a href="/profile" class="hover:cusor-pointer hover:underline"
+                    >Profile</a
+                >
+            </li>
         {:else}
-            <li><a href="/login">Login</a></li>
+            <li>
+                <a href="/login" class="hover:cusor-pointer hover:underline"
+                    >Login</a
+                >
+            </li>
         {/if}
     </ul>
 </nav>
