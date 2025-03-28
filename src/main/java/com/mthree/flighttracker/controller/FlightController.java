@@ -2,7 +2,6 @@ package com.mthree.flighttracker.controller;
 
 
 import com.mthree.flighttracker.model.*;
-import com.mthree.flighttracker.service.FlightServiceApiImpl;
 import com.mthree.flighttracker.service.FlightServiceInterface;
 import com.mthree.flighttracker.service.UserHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
