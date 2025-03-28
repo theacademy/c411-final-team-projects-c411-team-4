@@ -29,6 +29,11 @@ public class JwtFilter extends OncePerRequestFilter {
         final Cookie[] cookies = request.getCookies();
         Cookie flightTokenCookie = null;
 
+        if(cookies == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         for(Cookie cookie : cookies) {
             if(cookie.getName().equalsIgnoreCase("flight_token")) {
                 flightTokenCookie = cookie;

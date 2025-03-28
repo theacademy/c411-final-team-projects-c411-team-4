@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -92,6 +94,7 @@ public class UserController {
             String token = jwtEncoder.generateToken(user.getUsername());
             ResponseCookie jwtCookie = ResponseCookie
                     .from("flight_token", token)
+                    .maxAge(Duration.ofDays(7))
                     .httpOnly(true)
                     .path("/")
                     .build();
@@ -135,6 +138,7 @@ public class UserController {
             ResponseCookie jwtCookie = ResponseCookie
                     .from("flight_token", token)
                     .httpOnly(true)
+                    .maxAge(Duration.ofDays(7))
                     .path("/")
                     .build();
             return ResponseEntity
