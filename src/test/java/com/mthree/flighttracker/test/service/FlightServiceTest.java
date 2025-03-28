@@ -3,11 +3,15 @@ package com.mthree.flighttracker.test.service;
 import com.mthree.flighttracker.FlighttrackerApplication;
 import com.mthree.flighttracker.dao.AirlineDao;
 import com.mthree.flighttracker.dao.AirportDao;
+import com.mthree.flighttracker.dao.FlightDao;
+import com.mthree.flighttracker.dao.FlightStatusDao;
 import com.mthree.flighttracker.helper.CoordinateHelper;
 import com.mthree.flighttracker.model.Airline;
 import com.mthree.flighttracker.model.Airport;
 import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.service.FlightServiceImpl;
+import jakarta.annotation.PostConstruct;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,8 +24,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = FlighttrackerApplication.class)
 @Sql(scripts = {"/test_clean_tables.sql", "/test_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class FlightServiceTest {
-    @Autowired
     private FlightServiceImpl flightService;
+
+    @Autowired
+    private FlightDao flightDao;
+
+    @Autowired
+    private FlightStatusDao flightStatusDao;
 
     @Autowired
     private AirlineDao airlineDao;
@@ -29,6 +38,10 @@ class FlightServiceTest {
     @Autowired
     private AirportDao airportDao;
 
+    @PostConstruct
+    public void beforeTests() {
+        flightService = new FlightServiceImpl(flightDao, flightStatusDao, airlineDao, airportDao);
+    }
 
     @Test
     public void testGetAllFlights() {

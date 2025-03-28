@@ -18,7 +18,7 @@ public class FlightServiceImpl implements FlightServiceInterface {
     private AirportDao airportDao;
 
     @Autowired
-    FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
+    public FlightServiceImpl(FlightDao flightDao, FlightStatusDao flightStatusDao, AirlineDao airlineDao, AirportDao airportDao) {
         this.flightStatusDao = flightStatusDao;
         this.flightDao = flightDao;
         this.airlineDao = airlineDao;
