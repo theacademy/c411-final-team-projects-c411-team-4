@@ -199,9 +199,8 @@ public class FlightServiceImpl implements FlightServiceInterface {
     }
 
     @Override
-    public Page<Flight> getLatestFlightByNumber(short number, Airline airline, Pageable pageable) {
-        pageable = PageRequest.of(0, 1, Sort.by(Sort.Order.desc("scheduledDeparture")));
-        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline, pageable);
+    public Flight getLatestFlightByNumber(short number, Airline airline) {
+        return flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
     }
 
     public Page<Flight> findByNumber(short number, Pageable pageable) {

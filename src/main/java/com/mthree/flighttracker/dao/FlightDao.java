@@ -30,12 +30,7 @@ public interface FlightDao extends JpaRepository<Flight, Integer> {
     Optional<Flight> getByNumberAirline(short number, Airline airline);
     Optional<Flight> findByNumber(short number);
 
-    // Flight Number search function
-    @Query("SELECT new com.mthree.flighttracker.dto.FlightProjection(f.id, f.status, " +
-            "f.depAirport, f.arrAirport, f.number, f.airline, f.scheduledArrival, " +
-            "f.scheduledDeparture, f.estimatedArrival, f.estimatedDeparture) FROM Flight f WHERE f.number = ?1 AND f.airline = ?2 " +
-            "ORDER BY f.scheduledDeparture DESC")
-    Page<Flight> findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(short number, Airline airline, Pageable pageable);
+    Flight findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(short number, Airline airline);
 
     Optional<Flight> findByNumber(int number);
 

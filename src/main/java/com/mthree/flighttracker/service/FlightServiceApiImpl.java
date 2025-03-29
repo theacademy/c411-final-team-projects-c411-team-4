@@ -14,7 +14,9 @@ import com.mthree.flighttracker.model.FlightStatus;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -261,6 +263,7 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
         Flight currentFlight;
 
         if(dbGivenFlight == null) {
+            apiGivenFlight.setStatus(flightStatus);
             // need to provide the airline which has our db ID
             apiGivenFlight.setAirline(airline);
             // same for the below airports
