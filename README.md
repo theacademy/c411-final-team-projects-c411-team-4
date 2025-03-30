@@ -15,8 +15,9 @@ Run
   npm run dev
 ```
 
-### View the app
+### Use the app
 ```http://localhost:5173/```
-    
+
+## Diagrams
 ![UML Diagram](UML.png)
 ![ERD](ERD.png)
