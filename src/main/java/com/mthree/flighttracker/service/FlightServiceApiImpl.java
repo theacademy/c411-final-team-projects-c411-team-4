@@ -227,6 +227,9 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
     public Flight processFlightFromApi(Flight apiFlight) {
         Airline airline = airlineDao.getAirlineByCode(apiFlight.getAirline().getCode());
         if (airline == null) {
+            airline = airlineDao.getAirlineByName(apiFlight.getAirline().getName());
+        }
+        if (airline == null) {
             airline = airlineDao.save(apiFlight.getAirline());
         }
 
@@ -244,12 +247,18 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
             apiFlight.setAirline(airline);
 
             Airport depAirport = airportDao.getAirportByCode(apiFlight.getDepAirport().getCode());
+            if(depAirport == null) {
+                depAirport = airportDao.getAirportByName(apiFlight.getDepAirport().getName());
+            }
             if (depAirport == null) {
                 apiFlight.getDepAirport().setLatitude(CoordinateHelper.createCoord("0"));
                 apiFlight.getDepAirport().setLongitude(CoordinateHelper.createCoord("0"));
                 depAirport = airportDao.save(apiFlight.getDepAirport());
             }
             Airport arrAirport = airportDao.getAirportByCode(apiFlight.getArrAirport().getCode());
+            if (arrAirport == null) {
+                arrAirport = airportDao.getAirportByName(apiFlight.getArrAirport().getName());
+            }
             if (arrAirport == null) {
                 apiFlight.getArrAirport().setLatitude(CoordinateHelper.createCoord("0"));
                 apiFlight.getArrAirport().setLongitude(CoordinateHelper.createCoord("0"));
