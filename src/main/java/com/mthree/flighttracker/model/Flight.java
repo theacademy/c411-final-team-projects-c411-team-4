@@ -19,28 +19,28 @@ public class Flight {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "status_id")
+    @JoinColumn(name = "status_id", nullable = false)
     private FlightStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "dep_airport_id")
+    @JoinColumn(name = "dep_airport_id", nullable = false)
     private Airport depAirport;
 
     @ManyToOne
-    @JoinColumn(name = "arr_airport_id")
+    @JoinColumn(name = "arr_airport_id", nullable = false)
     private Airport arrAirport;
 
-    @Column(name = "number")
+    @Column(name = "number", nullable = false)
     private int number;
 
     @ManyToOne
-    @JoinColumn(name = "airline_id")
+    @JoinColumn(name = "airline_id", nullable = false)
     private Airline airline;
 
-    @Column(name = "scheduled_arrival")
+    @Column(name = "scheduled_arrival", nullable = false)
     private LocalDateTime scheduledArrival;
 
-    @Column(name = "scheduled_departure")
+    @Column(name = "scheduled_departure", nullable = false)
     private LocalDateTime scheduledDeparture;
 
     @Column(name = "estimated_arrival")

@@ -19,5 +19,7 @@ Run
 ```http://localhost:5173/```
 
 ## UML Diagram & ERD
-![UML Diagram](UML.png)
-![ERD](ERD.png)
+### UML
+![UML Diagram](diagrams/UML.png)
+### ERD
+![ERD](diagrams/ERD.png)
