@@ -1,2 +1,2 @@
-![UML Diagram](UML.png)
-![ERD](ERD.png)
+![UML Diagram](diagrams/UML.png)
+![ERD](diagrams/ERD.png)
