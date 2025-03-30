@@ -60,8 +60,10 @@
                 >
             </li>
             <li>
-                <a href="/profile" class="hover:cusor-pointer hover:underline"
-                    >Profile</a
+                <a
+                    href=""
+                    on:click={() => (window.location.href = "/profile")}
+                    class="hover:cusor-pointer hover:underline">Profile</a
                 >
             </li>
             <li>
