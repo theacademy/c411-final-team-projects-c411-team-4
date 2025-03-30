@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface UserSearchHistoryDao extends JpaRepository<UserSearchHistory, Integer> {
     public List<UserSearchHistory> findByUserUsername(String username);
+    List<UserSearchHistory> findTop10ByUserUsernameOrderByCreatedAtDesc(String username);
 }

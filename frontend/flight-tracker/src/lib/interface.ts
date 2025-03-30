@@ -1,3 +1,38 @@
+/**
+    *   {
+    "id": 104,
+    "user": {
+      "id": 1,
+      "username": "johndoe",
+      "email": "john.doe@example.com"
+    },
+    "airline": {
+      "id": 4,
+      "name": "JetBlue Airways",
+      "code": "B6"
+    },
+    "depAirport": null,
+    "arrAirport": null,
+    "soleAirport": null,
+    "createdAt": "2025-03-30T17:33:48"
+  },
+    */
+
+interface User {
+    id: number;
+    username: string;
+    email: string;
+}
+
+interface UserSearchHistory {
+    user: User;
+    airline: Airline | undefined;
+    depAirport: Airport | undefined;
+    arrAirport: Airport | undefined;
+    soleAirport: Airport | undefined;
+    createdAt: string;
+}
+
 interface Airport {
     id: number;
     name: string;

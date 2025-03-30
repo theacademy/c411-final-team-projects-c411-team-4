@@ -23,7 +23,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
     @Override
     public List<UserSearchHistory> getHistoryByUsername(String username) {
-        return historyDao.findByUserUsername(username);
+        return historyDao.findTop10ByUserUsernameOrderByCreatedAtDesc(username);
     }
 
     @Override

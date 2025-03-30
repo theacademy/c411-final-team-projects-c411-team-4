@@ -3,22 +3,36 @@
     import { onMount } from "svelte";
 
     let user: any;
+    let searchHistory: UserSearchHistory[];
     let isEditing = false;
     let editedUser: any;
     let successMessage = "";
     let errorMessage = "";
 
     onMount(() => {
-        window.addEventListener("profileLoaded", (_) => {
+        window.addEventListener("profileLoaded", async (_) => {
             user = localStorage.getItem("user");
             if (!user) {
                 goto("/login");
             } else {
                 user = JSON.parse(user);
                 editedUser = { ...user };
+                searchHistory = await getSearchHistory();
             }
         });
     });
+
+    async function getSearchHistory(): Promise<UserSearchHistory[]> {
+        const response = await fetch("http://localhost:8080/api/user/history", {
+            credentials: "include",
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const userHistory: UserSearchHistory[] = await response.json();
+        return Promise.resolve(userHistory);
+    }
 
     function toggleEdit() {
         if (isEditing) {
@@ -171,6 +185,84 @@
                             >
                         {/if}
                     </div>
+                </div>
+            {/if}
+        </div>
+        <div
+            class="bg-gradient-to-r from-sky-900 to-sky-600 shadow-lg rounded-t-lg py-6 px-4 text-center mt-8"
+        >
+            {#if searchHistory}
+                <h1 class="text-4xl font-bold text-white">
+                    Last {searchHistory.length} Searches
+                </h1>
+            {/if}
+        </div>
+        <div class="bg-white shadow-md rounded-b-lg p-6">
+            {#if searchHistory}
+                <div class="space-y-4">
+                    {#each searchHistory as history}
+                        <div
+                            class="border border-gray-200 p-4 rounded-lg hover:shadow-md transition duration-300"
+                        >
+                            {#if history.soleAirport == undefined && history.depAirport == undefined && history.arrAirport == undefined && history.airline == undefined}
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-semibold"
+                                        >Searched for All</span
+                                    >
+                                </div>
+                            {/if}
+                            {#if history.soleAirport}
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-semibold"
+                                        >Sole Airport:</span
+                                    >
+                                    <span
+                                        >{history.soleAirport?.code ||
+                                            "not used"}</span
+                                    >
+                                </div>
+                            {/if}
+                            {#if history.arrAirport}
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-semibold"
+                                        >Arriving Airport:</span
+                                    >
+                                    <span
+                                        >{history.arrAirport?.code ||
+                                            "not used"}</span
+                                    >
+                                </div>
+                            {/if}
+                            {#if history.depAirport}
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-semibold"
+                                        >Departing Airport:</span
+                                    >
+                                    <span
+                                        >{history.depAirport?.code ||
+                                            "not used"}</span
+                                    >
+                                </div>
+                            {/if}
+                            {#if history.airline}
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-semibold">Airline:</span>
+                                    <span
+                                        >{history.airline?.name ||
+                                            "not used"}</span
+                                    >
+                                </div>
+                            {/if}
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Time:</span>
+                                <span
+                                    >{new Date(
+                                        history.createdAt,
+                                    ).toLocaleString()}</span
+                                >
+                            </div>
+                        </div>
+                    {/each}
                 </div>
             {/if}
         </div>
