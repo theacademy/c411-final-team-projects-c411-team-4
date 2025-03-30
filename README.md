@@ -18,6 +18,6 @@ Run
 ### Use the app
 ```http://localhost:5173/```
 
-## Diagrams
+## UML Diagram & ERD
 ![UML Diagram](UML.png)
 ![ERD](ERD.png)
