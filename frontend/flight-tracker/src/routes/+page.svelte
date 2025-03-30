@@ -38,17 +38,19 @@
     let depAirport = "";
     let arrAirport = "";
     let flights: Flight[] = [];
+    let isSearching = false;
 
     onMount(async () => {
-        loadAllFlights();
+        setTimeout(() => {
+            loadAllFlights();
+        }, 1000);
     });
 
     async function loadAllFlights() {
         try {
-            const response = await fetch(
-                "http://localhost:8080/api/search",
-                { credentials: "include" },
-            );
+            const response = await fetch("http://localhost:8080/api/search", {
+                credentials: "include",
+            });
             const data: { content: Flight[] } = await response.json();
             flights = data.content;
         } catch (err) {
@@ -87,6 +89,7 @@
 
         const url = `http://localhost:8080/api/search?${params.toString()}`;
 
+        isSearching = true;
         try {
             const response = await fetch(url, { credentials: "include" });
             const data: { content: Flight[] } = await response.json();
@@ -94,6 +97,7 @@
         } catch (err) {
             console.error("Search error:", err);
         }
+        isSearching = false;
     }
 
     function formatDateTime(isoString) {
@@ -152,17 +156,21 @@
             on:click={searchFlights}
             class="bg-sky-600 text-white rounded px-4 py-2 shadow-sm"
         >
-            🔍 Search Flights
+            {isSearching ? "Loading..." : "🔍 Search Flights"}
         </button>
     </div>
 
-    <div class="max-w-3xl w-full mx-auto text-center mt-10">
+    <div
+        class={`max-w-3xl w-full mx-auto text-center mt-10 ${isSearching ? "opacity-25" : ""}`}
+    >
         <h2 class="text-2xl font-bold text-gray-800 text-sky-600">
             Flights Available
         </h2>
     </div>
 
-    <ul class="max-w-3xl w-full mx-auto space-y-4 mt-6">
+    <ul
+        class={`max-w-3xl w-full mx-auto space-y-4 mt-6 ${isSearching ? "opacity-25" : ""}`}
+    >
         {#if flights.length === 0}
             <li
                 class="bg-white border border-gray-200 rounded-lg p-4 text-center shadow-sm"
