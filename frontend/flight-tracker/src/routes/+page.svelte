@@ -64,16 +64,21 @@
             return;
         }
 
-        const isOnlyAirline = airline && !depAirport && !arrAirport;
-
-        if (isOnlyAirline) {
+        if (airline != undefined && airline != null && airline.trim() != "") {
             params.append("airline", airline);
-        } else if (depAirport && arrAirport) {
+        }
+        if (
+            depAirport != undefined &&
+            depAirport != null &&
+            depAirport.trim() != ""
+        ) {
             params.append("departing", depAirport);
-            params.append("arrival", arrAirport);
-        } else if (depAirport) {
-            params.append("airport", depAirport);
-        } else if (arrAirport) {
+        }
+        if (
+            arrAirport != undefined &&
+            arrAirport != null &&
+            arrAirport.trim() != ""
+        ) {
             params.append("arrival", arrAirport);
         }
 
@@ -83,7 +88,7 @@
         const url = `http://localhost:8080/api/search?${params.toString()}`;
 
         try {
-            const response = await fetch(url, { credentials: 'include' });
+            const response = await fetch(url, { credentials: "include" });
             const data: { content: Flight[] } = await response.json();
             flights = data.content;
         } catch (err) {
@@ -130,7 +135,7 @@
     >
         <input
             bind:value={airline}
-            placeholder="Airline (e.g. JetBlue)"
+            placeholder="Airline (e.g. JetBlue Airways)"
             class="border border-gray-300 rounded px-4 py-2 shadow-sm w-60"
         />
         <input
@@ -171,7 +176,7 @@
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm"
             >
                 <div class="text-lg font-semibold text-sky-700">
-                    ✈️ {flight.airline?.name} — {flight.number}
+                    ✈️ {flight.airline?.name} — {`#${flight.airline?.code}${String(flight.number).padStart(4, "0")}`}
                 </div>
                 <div class="text-sm text-gray-700 mb-1">
                     {flight.depAirport?.code} ➡ {flight.arrAirport?.code}
@@ -187,4 +192,3 @@
         {/each}
     </ul>
 </main>
-

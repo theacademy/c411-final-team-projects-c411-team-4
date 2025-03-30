@@ -6,8 +6,19 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface FlightServiceInterface {
+    public Page<?> searchFlights(String airline, String departing, String arrival, String airport, Pageable pageable);
+
+    public Page<Flight> findByNumber(short number, Pageable pageable);
+
+    public Optional<Flight> findByNumber (int number);
+
+    public Page<Airport> findAllAirports(Pageable pageable);
+
+    public Page<Flight> findAll(Pageable pageable);
+
     /**
      * Retrieves all flights in the system
      *

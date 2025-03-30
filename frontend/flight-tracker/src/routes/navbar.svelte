@@ -25,6 +25,13 @@
         const event = new CustomEvent("profileLoaded");
         window.dispatchEvent(event);
     });
+
+    async function logout() {
+        await fetch("http://localhost:8080/api/user/logout", {
+            credentials: "include",
+        });
+        window.location.reload();
+    }
 </script>
 
 <nav class="bg-sky-800 text-white p-4 flex justify-between items-center">
@@ -57,6 +64,13 @@
                     >Profile</a
                 >
             </li>
+            <li>
+                <a
+                    on:click={logout}
+                    href=""
+                    class="hover:cusor-pointer hover:underline">Logout</a
+                >
+            </li>
         {:else}
             <li>
                 <a href="/login" class="hover:cusor-pointer hover:underline"
@@ -66,4 +80,3 @@
         {/if}
     </ul>
 </nav>
-

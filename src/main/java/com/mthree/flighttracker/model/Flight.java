@@ -1,5 +1,6 @@
 package com.mthree.flighttracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -7,6 +8,12 @@ import java.time.LocalDateTime;
 
 @Entity
 public class Flight {
+    @Transient
+    private int bearing; // NOT A DATABASE FIELD
+
+    @Transient
+    private boolean fromApi; // NOT A DATABASE FIELD
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private int id;
@@ -103,6 +110,15 @@ public class Flight {
         return longitude;
     }
 
+    public Flight setFromApi(boolean fromApi) {
+        this.fromApi = fromApi;
+        return this;
+    }
+
+    public boolean isFromApi() {
+        return fromApi;
+    }
+
     public Flight setStatus(FlightStatus status) {
         this.status = status;
         return this;
@@ -158,4 +174,12 @@ public class Flight {
         return this;
     }
 
+    public Flight setBearing(int bearing) {
+        this.bearing = bearing;
+        return this;
+    }
+
+    public int getBearing() {
+        return bearing;
+    }
 }

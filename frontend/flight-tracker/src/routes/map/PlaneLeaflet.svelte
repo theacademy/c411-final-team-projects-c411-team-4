@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { LatLngExpression } from "leaflet";
     import Leaflet from "$lib/Leaflet.svelte";
+    import * as turf from "@turf/turf";
     import { onDestroy, onMount } from "svelte";
     import L from "leaflet";
     import { createLeafletMap } from "$lib/util";
@@ -11,6 +12,7 @@
     const initialView = [39.8283, -98.5795];
 
     let planeNumberToMarker: Map<String, L.Marker> = new Map();
+    let planeNumberToArc: Map<String, L.Polyline> = new Map();
 
     let mapElement: HTMLElement;
     let map: L.Map | undefined = undefined;
@@ -28,13 +30,28 @@
         clearInterval(intervalId);
     });
 
+    function getGreatCirclePath(from: any, to: any, steps = 30) {
+        const line = turf.greatCircle(from, to, { npoints: steps });
+        return line.geometry.coordinates.map((coord) => [coord[1], coord[0]]);
+    }
+
     function createPlaneIcon(rotation: number = 0) {
+        const baseFontSize = parseFloat(
+            getComputedStyle(document.documentElement).fontSize,
+        );
+
+        const sizeInEm = 7.5;
+        const sizeInPixels = sizeInEm * baseFontSize;
+        const anchorInPixels = sizeInPixels / 2;
+
         const html = `<div class="plane-image" style="transform: rotate(${rotation}deg);">
-                        <img src="https://buckets.kmfg.dev/mthree/plane.png" class="plane-image"/>
-                      </div>`;
+                    <img src="https://buckets.kmfg.dev/mthree/plane.png" class="plane-image"/>
+                  </div>`;
         return L.divIcon({
             html,
             className: "plane-image",
+            iconAnchor: [anchorInPixels, anchorInPixels],
+            iconSize: [sizeInPixels, sizeInPixels],
         });
     }
 
@@ -43,10 +60,35 @@
      * Data is currently mocked.
      */
     function grabPlanePositions() {
-        intervalId = setInterval(() => {
-            let markers = planeNumberToMarker.values();
-            for (const marker of markers) {
-                updatePlanePosition(marker);
+        intervalId = setInterval(async () => {
+            let iataNumbers = [...planeNumberToMarker.keys()];
+
+            for (const iataNumber of iataNumbers) {
+                const marker = planeNumberToMarker.get(iataNumber);
+                const airlineCode = iataNumber.substring(0, 2);
+                const flightNumber = iataNumber.substring(2);
+                const planeNoLongerInAir = await updatePlanePosition(
+                    airlineCode,
+                    flightNumber,
+                    marker,
+                );
+
+                if (planeNoLongerInAir) {
+                    // remove marker, then remove the plane from map and alert the user through window alert
+                    marker.remove();
+                    planeNumberToMarker.delete(iataNumber);
+                    const polyline = planeNumberToArc.get(iataNumber);
+                    if (polyline) {
+                        polyline.remove();
+                        planeNumberToArc.delete(iataNumber);
+                    }
+                    window.alert(
+                        `Flight #${iataNumber} is no longer in the air, and cannot be tracked.`,
+                    );
+                    if (activePopupMarker == marker) {
+                        activePopupMarker = null;
+                    }
+                }
 
                 if (activePopupMarker === marker && map) {
                     map.panTo(marker.getLatLng());
@@ -73,7 +115,68 @@
         return (bearing + 360) % 360;
     }
 
-    function updatePlanePosition(marker: L.Marker) {
+    // returns true if the plane should be removed
+    async function updatePlanePosition(
+        airlineCode: String,
+        flightNumber: String,
+        marker: L.Marker,
+    ): Promise<boolean> {
+        let response;
+        try {
+            response = await fetch(
+                `http://localhost:8080/api/flight/${airlineCode}/${flightNumber}`,
+                { credentials: "include" },
+            );
+
+            if (!response.ok) {
+                return true;
+            }
+        } catch (e) {
+            console.error(`Error fetching flight: ${e}`);
+            return true;
+        }
+
+        const apiFlightData: Flight = await response.json();
+
+        if (apiFlightData.latitude == null || apiFlightData.longitude == null) {
+            return true;
+        }
+
+        const latLngObj = marker.getLatLng();
+
+        const newPos = [apiFlightData.latitude, apiFlightData.longitude];
+        const arrPos = [apiFlightData.longitude, apiFlightData.latitude];
+        const destPos = [
+            apiFlightData.arrAirport.longitude,
+            apiFlightData.arrAirport.latitude,
+        ];
+
+        const bearing = calculateBearing(
+            [...arrPos].reverse(),
+            [...destPos].reverse(),
+        );
+
+        latLngObj.lat = newPos[0];
+        latLngObj.lng = newPos[1];
+
+        marker.setLatLng(latLngObj);
+
+        marker.setIcon(createPlaneIcon(bearing));
+        const arc = getGreatCirclePath(arrPos, destPos);
+        if (planeNumberToArc.has(flightNumber)) {
+            // remove existing polyline so we dont make a bunch of overlaps
+            planeNumberToArc.get(flightNumber).remove();
+        }
+        const polyline = L.polyline(arc, {
+            color: "blue",
+            weight: 2,
+        }).addTo(map);
+        planeNumberToArc.set(flightNumber, polyline);
+
+        return false;
+    }
+
+    function updatePlanePositionMock(marker: L.Marker) {
         const latLngObj = marker.getLatLng();
         const previousPos = [latLngObj.lat, latLngObj.lng];
         const addToCurrent = calculateNewTargets();
