@@ -12,7 +12,7 @@ public class ApiRateLimiter {
     public static final long RECOMMENDED_MS_BETWEEN_CALLS = 10000L;
 
     private static final int MAX_HOLDERS = 1;
-    private static final int MAX_CALLS_PER_MINUTE = 10;
+    private static final int MAX_CALLS_PER_MINUTE = 25;
 
     private final Semaphore apiCallSemaphore;
     private final Queue<Long> callTimestamps;

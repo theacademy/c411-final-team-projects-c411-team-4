@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
+import java.util.Arrays;
+
 @RestController
 @RequestMapping("/api")
 public class FlightController {
@@ -86,12 +88,6 @@ public class FlightController {
 
 
        try {
-           // Validate that at least one parameter is provided
-           if (airline == null && departing == null && arrival == null && airport == null) {
-               return ResponseEntity.badRequest().build();
-           }
-
-
            // Validate that airport is not used with destination or arrival
            if (airport != null && (departing != null || arrival != null)) {
                return ResponseEntity.badRequest().build();
@@ -105,6 +101,8 @@ public class FlightController {
        } catch (IllegalArgumentException e) {
            return ResponseEntity.badRequest().build();
        } catch (Exception e) {
+           System.out.println(e.getMessage());
+           System.out.println(Arrays.toString(e.getStackTrace()));
            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
        }
    }

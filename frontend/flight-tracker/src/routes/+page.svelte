@@ -46,7 +46,7 @@
     async function loadAllFlights() {
         try {
             const response = await fetch(
-                "http://localhost:8080/api/flights?page=0&size=10",
+                "http://localhost:8080/api/search",
                 { credentials: "include" },
             );
             const data: { content: Flight[] } = await response.json();

@@ -10,12 +10,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class AviationStackApi {
     private static final String AVIATION_STACK_BASE_URI = "https://api.aviationstack.com/v1";
     private static final String AVIATION_STACK_ACCESS_KEY = "?access_key=%s";
     private static final String AVIATION_STACK_IATA_FLIGHT_NUMBER = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&flight_iata=%s";
+
+    private static final String AVIATION_STACK_ALL_ACTIVE = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active";
+    private static final String AVIATION_STACK_AIRLINE_IATA = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&airline_iata=%s";
+    private static final String AVIATION_STACK_DEP_ARR_IATAS = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&dep_iata=%s&arr_iata=%s";
+    private static final String AVIATION_STACK_DEP_ARR_AIRLINE_IATAS = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&dep_iata=%s&arr_iata=%s&airline_iata=%s";
+    private static final String AVIATION_STACK_ARR_AIRLINE_IATAS = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&arr_iata=%s^airline_iata=%s";
+    private static final String AVIATION_STACK_ARR_IATA = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&arr_iata=%s";
+    private static final String AVIATION_STACK_DEP_AIRLINE_IATAS = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&dep_iata=%s&airline_iata=%s";
+    private static final String AVIATION_STACK_DEP_IATA = AVIATION_STACK_BASE_URI + "/flights" + AVIATION_STACK_ACCESS_KEY + "&flight_status=active" + "&dep_iata=%s";
 
     private final String apiToken;
     private final ApiRateLimiter rateLimiter;
@@ -63,16 +74,71 @@ public class AviationStackApi {
         }
 
         rateLimiter.releaseCall();
+        final boolean includeLocation = true;
         return Optional.ofNullable(
-                convert(flightApiResponse.getData().get(0))
+                convert(flightApiResponse.getData().get(0), includeLocation)
         );
     }
 
-    private Flight convert(FlightData flightData) {
-        final LiveInfo liveInfo = flightData.getLive();
-        if(liveInfo.getLatitude() == null || liveInfo.getLongitude() == null) {
-            return null;
+    public List<Flight> getLiveFlightsByDepArrAirportAirline(String depIata, String arrIata, String airIata) throws InterruptedException {
+        if(!canCallApi()) {
+            return List.of();
         }
+
+        rateLimiter.prepareCall();
+
+        final String getFlights = determineSearchUri(depIata, arrIata, airIata);
+
+        final RestTemplate restTemplate = new RestTemplate();
+        final ResponseEntity<FlightApiResponse> response = restTemplate.getForEntity(getFlights, FlightApiResponse.class);
+        final FlightApiResponse flightApiResponse = response.getBody();
+
+        if(
+                flightApiResponse == null ||
+                        flightApiResponse.getData() == null ||
+                        flightApiResponse.getData().isEmpty()
+        ) {
+            rateLimiter.releaseCall();
+            return List.of();
+        }
+
+        rateLimiter.releaseCall();
+
+        List<Flight> flights = new ArrayList<>();
+        final boolean includeLocation = false;
+        for(FlightData flightData : flightApiResponse.getData()) {
+            flights.add(convert(flightData, includeLocation));
+        }
+        return flights;
+    }
+
+    private String determineSearchUri(String depIata, String arrIata, String airIata) {
+        String getFlights;
+        final boolean haveDeparting = depIata != null && !depIata.isBlank();
+        final boolean haveArrival = arrIata != null && !arrIata.isBlank();
+        final boolean haveAirline = airIata != null && !airIata.isBlank();
+        if(haveDeparting && haveArrival && haveAirline) {
+            getFlights = String.format(AVIATION_STACK_DEP_ARR_AIRLINE_IATAS, apiToken, depIata, arrIata, airIata);
+        } else if(haveDeparting && haveArrival) {
+            getFlights = String.format(AVIATION_STACK_DEP_ARR_IATAS, apiToken, depIata, arrIata);
+        } else if(haveAirline && haveDeparting) {
+            getFlights = String.format(AVIATION_STACK_DEP_AIRLINE_IATAS, apiToken, depIata, airIata);
+        } else if(haveAirline && haveArrival) {
+            getFlights = String.format(AVIATION_STACK_ARR_AIRLINE_IATAS, apiToken, arrIata, airIata);
+        } else if(haveAirline) {
+            getFlights = String.format(AVIATION_STACK_AIRLINE_IATA, apiToken, airIata);
+        } else if(haveDeparting) {
+            getFlights = String.format(AVIATION_STACK_DEP_IATA, apiToken, depIata);
+        } else if(haveArrival) {
+            getFlights = String.format(AVIATION_STACK_ARR_IATA, apiToken, arrIata);
+        } else {
+            getFlights = String.format(AVIATION_STACK_ALL_ACTIVE, apiToken);
+        }
+        return getFlights;
+    }
+
+    private Flight convert(FlightData flightData, boolean includeLocation) {
+        final LiveInfo liveInfo = flightData.getLive();
 
         final AirlineInfo airlineInfo = flightData.getAirline();
         final Airline airline = new Airline()
@@ -103,16 +169,19 @@ public class AviationStackApi {
                         OffsetDateTime.parse(departureInfo.getScheduled()).toLocalDateTime()
                 );
 
-        flight.setLatitude(
-                CoordinateHelper.createCoord(
-                        "" + liveInfo.getLatitude()
-                )
-        );
-        flight.setLongitude(
-                CoordinateHelper.createCoord(
-                        "" + liveInfo.getLongitude()
-                )
-        );
+        if(includeLocation && liveInfo != null && liveInfo.getLatitude() != null && liveInfo.getLongitude() != null) {
+            flight.setBearing(liveInfo.getDirection());
+            flight.setLatitude(
+                    CoordinateHelper.createCoord(
+                            "" + liveInfo.getLatitude()
+                    )
+            );
+            flight.setLongitude(
+                    CoordinateHelper.createCoord(
+                            "" + liveInfo.getLongitude()
+                    )
+            );
+        }
 
         if(departureInfo.getEstimated() != null && !departureInfo.getEstimated().isBlank()) {
             flight.setEstDeparture(
@@ -124,8 +193,6 @@ public class AviationStackApi {
                     OffsetDateTime.parse(arrivalInfo.getEstimated()).toLocalDateTime()
             );
         }
-
-        flight.setBearing(liveInfo.getDirection());
 
         return flight;
     }

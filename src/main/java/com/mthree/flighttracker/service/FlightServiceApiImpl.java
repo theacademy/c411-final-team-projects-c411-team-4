@@ -13,17 +13,12 @@ import com.mthree.flighttracker.model.Flight;
 import com.mthree.flighttracker.model.FlightStatus;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service("flightServiceApi")
 public class FlightServiceApiImpl implements FlightServiceInterface {
@@ -147,66 +142,42 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
 
 
     public Page<?> searchFlights(String airline, String departing, String arrival, String airport, Pageable pageable) {
-        if (airline == null) {
-            if(departing != null && arrival != null) {
-                final Airport depAirport = airportDao.getAirportByCode(departing);
-                final Airport arrAirport = airportDao.getAirportByCode(arrival);
-                return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+        if(airport != null && !airport.isBlank())  {
+            final Airport soleAirport = airportDao.getAirportByCode(airport);
+            if(soleAirport == null) {
+                return null;
             }
-            if (airport != null && (arrival == null && departing == null)) {
-                Airport airport1 = airportDao.getAirportByCode(airport);
-                return flightDao.getFlightsByAirport(airport1, pageable);
-            }
-            if (arrival != null && (airport == null && departing == null)) {
-                Airport airport1 = airportDao.getAirportByCode(arrival);
-                return flightDao.getFlightsByArrAirport(airport1, pageable);
-            }
-            if (departing != null && (airport == null && arrival == null)) {
-                Airport airport1 = airportDao.getAirportByCode(departing);
-                return flightDao.getFlightsByDepAirport(airport1, pageable);
-            }
+            return flightDao.getFlightsByAirport(soleAirport, pageable);
         }
 
-
-        if (airline != null) {
-            if(arrival != null && departing != null) {
-                Airline airlineOne = airlineDao.getAirlineByName(airline);
-                Airport arrAirport = airportDao.getAirportByCode(arrival);
-                Airport depAirport = airportDao.getAirportByCode(departing);
-
-                return flightDao.getFlightsByDepAirportAndArrAirportAndAirline(depAirport, arrAirport, airlineOne, pageable);
-            }
-
-            if (airport == null && arrival == null && departing == null) {
-                Airline airline1 = airlineDao.getAirlineByName(airline);
-                return flightDao.getFlightsByAirline(airline1, pageable);
-            }
-
-            if (airport != null && (arrival == null && departing == null)) {
-                Airport airport1 = airportDao.getAirportByCode(airport);
-                Airline airline1 = airlineDao.getAirlineByName(airline);
-
-                return flightDao.getFlightsByAirportAndAirline(airport1, airline1, pageable);
-            }
-
-
-            if (arrival != null && (airport == null && departing == null)) {
-                Airport airport1 = airportDao.getAirportByCode(arrival);
-                Airline airline1 = airlineDao.getAirlineByName(airline);
-
-                return flightDao.getFlightsByArrAirportAndAirline(airport1, airline1, pageable);
-            }
-
-
-            if (departing != null && (airport == null && arrival == null)) {
-                Airport airport1 = airportDao.getAirportByCode(departing);
-                Airline airline1 = airlineDao.getAirlineByName(airline);
-                return flightDao.getFlightsByDepAirportAndAirline(airport1, airline1, pageable);
-            }
+        final Airline dbAirline = airlineDao.getAirlineByName(airline);
+        if(airline != null && !airline.isEmpty() && dbAirline == null) {
+            return null;
         }
 
+        final Airport depAirport = airportDao.getAirportByCode(departing);
+        final Airport arrAirport = airportDao.getAirportByCode(arrival);
+        if(airline == null && depAirport == null && arrAirport == null) {
+            return null;
+        }
 
-        return null;
+        List<Flight> flightsFromApi = new ArrayList<>();
+        try {
+            flightsFromApi = aviationStackApi.getLiveFlightsByDepArrAirportAirline(departing, arrival, dbAirline == null ? null : dbAirline.getCode());
+        } catch (InterruptedException e) {
+            return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+        }
+
+        if(flightsFromApi.isEmpty()) {
+            return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+        }
+
+        flightsFromApi = processFlightsFromApi(flightsFromApi);
+        final int start = (int) pageable.getOffset();
+        final int end = Math.min(start + pageable.getPageSize(), flightsFromApi.size());
+
+        List<Flight> subFlightsFromApi = start > end ? Collections.emptyList() : flightsFromApi.subList(start, end);
+        return new PageImpl<Flight>(subFlightsFromApi, pageable, subFlightsFromApi.size());
     }
 
 
@@ -221,7 +192,6 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
 
         return flight;
     }
-
 
     @Override
     public Airline getAirlineByCode(String code) {
@@ -251,44 +221,64 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
         }
 
         final Flight apiGivenFlight = liveFlight.get();
-        final Flight dbGivenFlight = flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc(number, airline);
+        return processFlightFromApi(apiGivenFlight);
+    }
 
-        apiGivenFlight.getStatus().setStatus(apiGivenFlight.getStatus().getStatus().toUpperCase());
-        FlightStatus flightStatus = flightStatusDao.getFlightStatus(apiGivenFlight.getStatus().getStatus());
-
-        if(flightStatus == null) {
-            flightStatus = flightStatusDao.save(apiGivenFlight.getStatus());
+    public Flight processFlightFromApi(Flight apiFlight) {
+        Airline airline = airlineDao.getAirlineByCode(apiFlight.getAirline().getCode());
+        if (airline == null) {
+            airline = airlineDao.save(apiFlight.getAirline());
         }
 
+        apiFlight.getStatus().setStatus(apiFlight.getStatus().getStatus().toUpperCase());
+        FlightStatus flightStatus = flightStatusDao.getFlightStatus(apiFlight.getStatus().getStatus());
+        if (flightStatus == null) {
+            flightStatus = flightStatusDao.save(apiFlight.getStatus());
+        }
+
+        Flight dbFlight = flightDao.findFirstByNumberAndAirlineOrderByScheduledDepartureDesc((short) apiFlight.getNumber(), airline);
         Flight currentFlight;
 
-        if(dbGivenFlight == null) {
-            apiGivenFlight.setStatus(flightStatus);
-            // need to provide the airline which has our db ID
-            apiGivenFlight.setAirline(airline);
-            // same for the below airports
-            final Airport depAirport = airportDao.getAirportByCode(apiGivenFlight.getDepAirport().getCode());
-            final Airport arrAirport = airportDao.getAirportByCode(apiGivenFlight.getArrAirport().getCode());
-            apiGivenFlight.setDepAirport(depAirport);
-            apiGivenFlight.setArrAirport(arrAirport);
+        if (dbFlight == null) {
+            apiFlight.setStatus(flightStatus);
+            apiFlight.setAirline(airline);
 
-            currentFlight = flightDao.save(apiGivenFlight);
+            Airport depAirport = airportDao.getAirportByCode(apiFlight.getDepAirport().getCode());
+            if (depAirport == null) {
+                apiFlight.getDepAirport().setLatitude(CoordinateHelper.createCoord("0"));
+                apiFlight.getDepAirport().setLongitude(CoordinateHelper.createCoord("0"));
+                depAirport = airportDao.save(apiFlight.getDepAirport());
+            }
+            Airport arrAirport = airportDao.getAirportByCode(apiFlight.getArrAirport().getCode());
+            if (arrAirport == null) {
+                apiFlight.getArrAirport().setLatitude(CoordinateHelper.createCoord("0"));
+                apiFlight.getArrAirport().setLongitude(CoordinateHelper.createCoord("0"));
+                arrAirport = airportDao.save(apiFlight.getArrAirport());
+            }
+
+            apiFlight.setDepAirport(depAirport);
+            apiFlight.setArrAirport(arrAirport);
+
+            currentFlight = flightDao.save(apiFlight);
         } else {
-            currentFlight = dbGivenFlight
-                    .setStatus(flightStatus)
-                    .setEstArrival(apiGivenFlight.getEstArrival())
-                    .setEstDeparture(apiGivenFlight.getEstDeparture())
-                    .setLatitude(apiGivenFlight.getLatitude())
-                    .setLongitude(apiGivenFlight.getLongitude());
+            currentFlight = dbFlight.setStatus(flightStatus)
+                    .setEstArrival(apiFlight.getEstArrival())
+                    .setEstDeparture(apiFlight.getEstDeparture())
+                    .setLatitude(apiFlight.getLatitude())
+                    .setLongitude(apiFlight.getLongitude());
             flightDao.save(currentFlight);
             currentFlight.setFromApi(true);
         }
 
-        if(currentFlight.isFromApi()) {
-            return currentFlight;
-        }
-
         return flightDao.save(currentFlight);
+    }
+
+    public List<Flight> processFlightsFromApi(List<Flight> apiFlights) {
+        List<Flight> processedFlights = new ArrayList<>();
+        for (Flight apiFlight : apiFlights) {
+            processedFlights.add(processFlightFromApi(apiFlight));
+        }
+        return processedFlights;
     }
 
     public Page<Flight> findByNumber(short number, Pageable pageable) {
