@@ -1,3 +1,4 @@
+![cover](cover.png)
 ## Running the Application
 
 ### Start Flight Tracker Spring app
