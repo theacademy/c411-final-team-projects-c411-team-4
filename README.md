@@ -1,5 +1,11 @@
 <img src="cover.png" alt="cover" width="100%">
 
+## Status Reports
+[Access reports](status-reports/)
+
+## Presentation
+[View slides](Presentation.pdf)
+
 ## Running the Application
 
 ### Start Flight Tracker Spring app
@@ -25,9 +31,3 @@ Run
 ![UML Diagram](diagrams/UML.png)
 ### ERD
 ![ERD](diagrams/ERD.png)
-
-## Status Reports
-[Access reports](status-reports/)
-
-## Presentation
-[View slides](Presentation.pdf)
