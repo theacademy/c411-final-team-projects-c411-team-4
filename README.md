@@ -25,3 +25,9 @@ Run
 ![UML Diagram](diagrams/UML.png)
 ### ERD
 ![ERD](diagrams/ERD.png)
+
+## Status Reports
+[Access reports](status-reports/)
+
+## Presentation
+[View slides](Presentation.pdf)
