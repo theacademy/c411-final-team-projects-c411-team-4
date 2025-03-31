@@ -105,7 +105,7 @@ public class AviationStackApi {
         rateLimiter.releaseCall();
 
         List<Flight> flights = new ArrayList<>();
-        final boolean includeLocation = false;
+        final boolean includeLocation = true;
         for(FlightData flightData : flightApiResponse.getData()) {
             flights.add(convert(flightData, includeLocation));
         }

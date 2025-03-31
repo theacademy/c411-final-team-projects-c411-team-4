@@ -85,7 +85,7 @@
         }
 
         params.append("page", "0");
-        params.append("size", "10");
+        params.append("size", "50");
 
         const url = `http://localhost:8080/api/search?${params.toString()}`;
 
@@ -183,6 +183,19 @@
             <li
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left shadow-sm"
             >
+                <div class="mb-2">
+                    <span
+                        class={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                            flight.status.status == "IN AIR"
+                                ? "bg-green-100 text-green-800"
+                                : flight.status.status == "PREPARING"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-gray-100 text-gray-800"
+                        }`}
+                    >
+                        {flight.status?.status || "Unknown"}
+                    </span>
+                </div>
                 <div class="text-lg font-semibold text-sky-700">
                     ✈️ {flight.airline?.name} — {`#${flight.airline?.code}${String(flight.number).padStart(4, "0")}`}
                 </div>

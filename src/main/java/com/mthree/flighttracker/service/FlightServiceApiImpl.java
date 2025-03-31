@@ -145,36 +145,50 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
         if(airport != null && !airport.isBlank())  {
             final Airport soleAirport = airportDao.getAirportByCode(airport);
             if(soleAirport == null) {
-                return null;
+                return new PageImpl<Object>(List.of(), pageable, 0);
             }
             return flightDao.getFlightsByAirport(soleAirport, pageable);
         }
 
         final Airline dbAirline = airlineDao.getAirlineByName(airline);
         if(airline != null && !airline.isEmpty() && dbAirline == null) {
-            return null;
-        }
-
-        final Airport depAirport = airportDao.getAirportByCode(departing);
-        final Airport arrAirport = airportDao.getAirportByCode(arrival);
-        if(airline == null && depAirport == null && arrAirport == null) {
-            return null;
+            return new PageImpl<Object>(List.of(), pageable, 0);
         }
 
         List<Flight> flightsFromApi = new ArrayList<>();
         try {
             flightsFromApi = aviationStackApi.getLiveFlightsByDepArrAirportAirline(departing, arrival, dbAirline == null ? null : dbAirline.getCode());
         } catch (InterruptedException e) {
-            return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+            return new PageImpl<Object>(List.of(), pageable, 0);
         }
 
         if(flightsFromApi.isEmpty()) {
-            return flightDao.getFlightsByDepAirportAndArrAirport(depAirport, arrAirport, pageable);
+            return new PageImpl<Object>(List.of(), pageable, 0);
         }
 
         flightsFromApi = processFlightsFromApi(flightsFromApi);
         final int start = (int) pageable.getOffset();
         final int end = Math.min(start + pageable.getPageSize(), flightsFromApi.size());
+
+        flightsFromApi.sort((flight1, flight2) -> {
+            flight1.setLongitude(null);
+            flight1.setLongitude(null);
+            flight2.setLongitude(null);
+            flight2.setLatitude(null);
+            final boolean isInAir1 = flight1.getStatus() != null &&
+                    flight1.getStatus().getStatus() != null &&
+                    flight1.getStatus().getStatus().equals("IN AIR");
+
+            final boolean isInAir2 = flight2.getStatus() != null &&
+                    flight2.getStatus().getStatus() != null &&
+                    flight2.getStatus().getStatus().equals("IN AIR");
+
+            if (isInAir1 == isInAir2) {
+                return 0;
+            }
+            return isInAir1 ? -1 : 1;
+        });
+
 
         List<Flight> subFlightsFromApi = start > end ? Collections.emptyList() : flightsFromApi.subList(start, end);
         return new PageImpl<Flight>(subFlightsFromApi, pageable, subFlightsFromApi.size());
@@ -225,7 +239,12 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
     }
 
     public Flight processFlightFromApi(Flight apiFlight) {
-        Airline airline = airlineDao.getAirlineByCode(apiFlight.getAirline().getCode());
+        // aviation stack is giving us bad data
+        final String fixedCode = apiFlight.getAirline().getCode().length() > 2 ?
+                apiFlight.getAirline().getCode().substring(0, 2)
+                :
+                apiFlight.getAirline().getCode();
+        Airline airline = airlineDao.getAirlineByCode(fixedCode);
         if (airline == null) {
             airline = airlineDao.getAirlineByName(apiFlight.getAirline().getName());
         }
@@ -234,6 +253,9 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
         }
 
         apiFlight.getStatus().setStatus(apiFlight.getStatus().getStatus().toUpperCase());
+        if(apiFlight.getStatus().getStatus().equals("ACTIVE")) {
+            apiFlight.getStatus().setStatus(apiFlight.getLongitude() == null ? "PREPARING" : "IN AIR");
+        }
         FlightStatus flightStatus = flightStatusDao.getFlightStatus(apiFlight.getStatus().getStatus());
         if (flightStatus == null) {
             flightStatus = flightStatusDao.save(apiFlight.getStatus());
@@ -268,18 +290,32 @@ public class FlightServiceApiImpl implements FlightServiceInterface {
             apiFlight.setDepAirport(depAirport);
             apiFlight.setArrAirport(arrAirport);
 
-            currentFlight = flightDao.save(apiFlight);
+            currentFlight = null;
+            try {
+                currentFlight = flightDao.save(apiFlight);
+            } catch (Exception e) {
+                e.getCause();
+            }
         } else {
             currentFlight = dbFlight.setStatus(flightStatus)
                     .setEstArrival(apiFlight.getEstArrival())
                     .setEstDeparture(apiFlight.getEstDeparture())
                     .setLatitude(apiFlight.getLatitude())
                     .setLongitude(apiFlight.getLongitude());
-            flightDao.save(currentFlight);
+            try {
+                flightDao.save(currentFlight);
+            } catch (Exception e) {
+                e.getCause();
+            }
             currentFlight.setFromApi(true);
         }
 
-        return flightDao.save(currentFlight);
+        try {
+            return flightDao.save(currentFlight);
+        } catch (Exception e) {
+            e.getCause();
+            return null;
+        }
     }
 
     public List<Flight> processFlightsFromApi(List<Flight> apiFlights) {

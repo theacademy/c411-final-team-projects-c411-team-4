@@ -94,15 +94,17 @@ public class FlightController {
            }
 
            final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-           updateUserSearchHistory(auth, airline, departing, arrival, airport);
+           try {
+               updateUserSearchHistory(auth, airline, departing, arrival, airport);
+           } catch (Exception e) {
+               // log?
+           }
 
            return ResponseEntity.ok(flightService.searchFlights(airline, departing, arrival, airport, pageable));
            //return ResponseEntity.ok().build();
        } catch (IllegalArgumentException e) {
            return ResponseEntity.badRequest().build();
        } catch (Exception e) {
-           System.out.println(e.getMessage());
-           System.out.println(Arrays.toString(e.getStackTrace()));
            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
        }
    }
