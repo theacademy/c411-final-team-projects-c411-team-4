@@ -1,4 +1,5 @@
-![cover](cover.png)
+<img src="cover.png" alt="cover" width="100%">
+
 ## Running the Application
 
 ### Start Flight Tracker Spring app
